@@ -38,7 +38,7 @@
       text-decoration: none; font-weight: bold; font-size: 0.9rem;
     }
 
-    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; }
+    .container { width: 95%; max-width: 1800px; margin: 2rem auto; padding: 0 1.5rem; }
 
     /* Navigasi Tab */
     .nav-tabs { display: flex; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px solid #CBD5E1; }
@@ -79,6 +79,30 @@
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
     .form-group input, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 4px; }
+    /* Media Queries for Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .container { width: 100%; padding: 0 1rem; margin: 1rem auto; }
+      header { padding: 1rem; flex-direction: column; gap: 1rem; text-align: center; }
+      .brand-title h2 { font-size: 1.1rem; }
+      .nav-tabs { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
+      .nav-tabs::-webkit-scrollbar { height: 4px; }
+      .nav-tabs::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+      .card-header { flex-direction: column; gap: 1rem; align-items: stretch; text-align: center; }
+      .card-header h2 { font-size: 1.2rem; }
+      
+      /* Card Layout for Tables */
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { position: absolute; top: -9999px; left: -9999px; }
+      tr { margin-bottom: 1rem; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.5rem 1rem; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+      td { border: none; border-bottom: 1px solid #F1F5F9; position: relative; padding: 0.8rem 0 0.8rem 45%; text-align: right; min-height: 2.5rem; }
+      td:last-child { border-bottom: 0; }
+      td::before { 
+        content: attr(data-label); position: absolute; left: 0; width: 40%; 
+        white-space: nowrap; text-align: left; font-weight: bold; color: var(--kemenkeu-main); font-size: 0.85rem; top: 0.8rem;
+      }
+      .action-group { justify-content: flex-end; margin-top: 0.5rem; }
+      .btn-act { padding: 0.6rem 0.8rem; flex: 1; text-align: center; }
+    }
   </style>
 </head>
 <body>
@@ -340,14 +364,14 @@
 
         tbody.innerHTML += `
           <tr>
-            <td><small>${item.waktuInput || '-'}</small></td>
-            <td><strong>${item.peminjam || '-'}</strong></td>
-            <td>${item.seksi || '-'}</td>
-            <td>${key}</td>
-            <td>${item.tglPinjam || '-'} s.d. ${item.tglKembali || '-'}</td>
-            <td>${item.keperluan || '-'}</td>
-            <td>${statusBadge}</td>
-            <td>
+            <td data-label="Waktu Input"><small>${item.waktuInput || '-'}</small></td>
+            <td data-label="Pegawai"><strong>${item.peminjam || '-'}</strong></td>
+            <td data-label="Seksi">${item.seksi || '-'}</td>
+            <td data-label="Kendaraan">${key}</td>
+            <td data-label="Masa Pinjam">${item.tglPinjam || '-'} s.d. ${item.tglKembali || '-'}</td>
+            <td data-label="Keperluan">${item.keperluan || '-'}</td>
+            <td data-label="Status">${statusBadge}</td>
+            <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-approve" onclick="updateStatus('${key}', 'Disetujui')">Setujui</button>
                 <button class="btn-act btn-reject" onclick="updateStatus('${key}', 'Ditolak')">Tolak</button>
@@ -398,11 +422,11 @@
 
         tbody.innerHTML += `
           <tr>
-            <td><strong>${item.peminjam}</strong></td>
-            <td>${key}</td>
-            <td>${item.tglKembali}</td>
-            <td>${statusKembali}</td>
-            <td>
+            <td data-label="Pegawai"><strong>${item.peminjam}</strong></td>
+            <td data-label="Kendaraan">${key}</td>
+            <td data-label="Batas Kembali">${item.tglKembali}</td>
+            <td data-label="Status Pengembalian">${statusKembali}</td>
+            <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-approve" onclick="prosesPengembalian('${key}')">Konfirmasi Kembali</button>
                 <button class="btn-act btn-delete" onclick="hapusPeminjaman('${key}')">Hapus Data</button>
@@ -431,9 +455,9 @@
       list.forEach((item, idx) => {
         tbody.innerHTML += `
           <tr>
-            <td><strong>${item.nama}</strong></td>
-            <td>${item.kondisi}</td>
-            <td>
+            <td data-label="Nama & Plat"><strong>${item.nama}</strong></td>
+            <td data-label="Kondisi">${item.kondisi}</td>
+            <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-edit" onclick="editKendaraan(${idx})">Edit</button>
                 <button class="btn-act btn-delete" onclick="deleteKendaraan(${idx})">Hapus</button>
@@ -486,10 +510,10 @@
       list.forEach((item, idx) => {
         tbody.innerHTML += `
           <tr>
-            <td><strong>${item.nama}</strong></td>
-            <td>${item.seksi}</td>
-            <td>${item.role}</td>
-            <td>
+            <td data-label="Nama Pegawai"><strong>${item.nama}</strong></td>
+            <td data-label="Seksi">${item.seksi}</td>
+            <td data-label="Role">${item.role}</td>
+            <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-edit" onclick="editUser(${idx})">Edit</button>
                 <button class="btn-act btn-delete" onclick="deleteUser(${idx})">Hapus</button>
@@ -564,11 +588,11 @@
       logs.forEach((item, idx) => {
         tbody.innerHTML += `
           <tr>
-            <td><small>${item.waktu}</small></td>
-            <td><strong>${item.user}</strong></td>
-            <td><span class="badge badge-pending">${item.aktivitas}</span></td>
-            <td>${item.rincian || '-'}</td>
-            <td>
+            <td data-label="Waktu"><small>${item.waktu}</small></td>
+            <td data-label="Pegawai/User"><strong>${item.user}</strong></td>
+            <td data-label="Aktivitas"><span class="badge badge-pending">${item.aktivitas}</span></td>
+            <td data-label="Rincian">${item.rincian || '-'}</td>
+            <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-edit" onclick="editLog(${idx})">Edit</button>
                 <button class="btn-act btn-delete" onclick="deleteLog(${idx})">Hapus</button>
