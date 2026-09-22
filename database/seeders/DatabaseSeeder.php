@@ -10,9 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Vehicle::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Vehicle::query()->delete();
 
         // Data 5 Kendaraan Dinas Riil KPKNL Metro
         Vehicle::create(['nama_kendaraan' => 'Toyota Rush - BE 1007 FZ', 'status' => 'tersedia']);
