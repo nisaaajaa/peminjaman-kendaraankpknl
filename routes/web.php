@@ -31,6 +31,16 @@ Route::post('/admin/employees', [AdminController::class, 'storeEmployee'])->name
 Route::put('/admin/employees/{id}', [AdminController::class, 'updateEmployee'])->name('admin.employees.update');
 Route::delete('/admin/employees/{id}', [AdminController::class, 'deleteEmployee'])->name('admin.employees.delete');
 
+// Rute CRUD Kendaraan
+Route::post('/admin/vehicles', [AdminController::class, 'storeVehicle'])->name('admin.vehicles.store');
+Route::put('/admin/vehicles/{id}', [AdminController::class, 'updateVehicle'])->name('admin.vehicles.update');
+Route::delete('/admin/vehicles/{id}', [AdminController::class, 'deleteVehicle'])->name('admin.vehicles.delete');
+
+// Rute Aksi Peminjaman
+Route::post('/admin/loans/{id}/approve', [AdminController::class, 'approveLoan'])->name('admin.loans.approve');
+Route::post('/admin/loans/{id}/reject', [AdminController::class, 'rejectLoan'])->name('admin.loans.reject');
+Route::post('/admin/loans/{id}/return', [AdminController::class, 'returnLoan'])->name('admin.loans.return');
+
 // Rute Logout
 Route::get('/logout', function () {
     return redirect()->route('login');

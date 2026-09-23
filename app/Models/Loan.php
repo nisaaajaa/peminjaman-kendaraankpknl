@@ -15,6 +15,7 @@ class Loan extends Model
         'nama_peminjam',
         'masa_pinjam',
         'keperluan',
+        'status',
     ];
 
     public function vehicle()

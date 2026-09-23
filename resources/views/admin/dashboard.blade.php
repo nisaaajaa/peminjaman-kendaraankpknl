@@ -138,7 +138,7 @@
 
     <!-- Navigasi Tab -->
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('peminjaman')">📋 CRUD Peminjaman</button>
+      <button class="tab-btn active" onclick="switchTab('peminjaman')">📋 Peminjaman</button>
       <button class="tab-btn" onclick="switchTab('kendaraan')">🚗 Kendaraan</button>
       <button class="tab-btn" onclick="switchTab('pengembalian')">🔄 Pengembalian</button>
       <button class="tab-btn" onclick="switchTab('user')">👤 User</button>
@@ -164,7 +164,7 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($loans as $loan)
+          @forelse($pendingLoans as $loan)
           <tr>
             <td data-label="Waktu Input"><small>{{ $loan->created_at->format('d/m/Y H:i') }}</small></td>
             <td data-label="NIP">{{ $loan->nip }}</td>
@@ -175,8 +175,14 @@
             <td data-label="Status"><span class="badge badge-pending">Menunggu</span></td>
             <td data-label="Aksi">
               <div class="action-group">
-                <button class="btn-act btn-approve" onclick="alert('Fitur Setuju tahap pengembangan')">Setujui</button>
-                <button class="btn-act btn-reject" onclick="alert('Fitur Tolak tahap pengembangan')">Tolak</button>
+                <form action="{{ route('admin.loans.approve', $loan->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  <button type="submit" class="btn-act btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Setujui</button>
+                </form>
+                <form action="{{ route('admin.loans.reject', $loan->id) }}" method="POST" style="display:inline;">
+                  @csrf
+                  <button type="submit" class="btn-act btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Tolak</button>
+                </form>
               </div>
             </td>
           </tr>
@@ -191,7 +197,7 @@
     <div id="tab-kendaraan" class="tab-content card-table">
       <div class="card-header">
         <h2>Kelola Data Kendaraan Dinas</h2>
-        <button class="btn-act btn-add" onclick="alert('Fitur Tambah tahap pengembangan')">+ Tambah Kendaraan</button>
+        <button class="btn-act btn-add" onclick="openModal('modalAddVehicle')">+ Tambah Kendaraan</button>
       </div>
       <table>
         <thead>
@@ -206,7 +212,7 @@
           @forelse($vehicles as $v)
           <tr>
             <td data-label="ID">#{{ $v->id }}</td>
-            <td data-label="Nama & Plat"><strong>{{ $v->nama_kendaraan }}</strong></td>
+            <td data-label="Nama & Plat"><strong>{{ $v->nama_kendaraan }} ({{ $v->plat_nomor }})</strong></td>
             <td data-label="Status Kendaraan">
               @if($v->status == 'tersedia')
                 <span class="badge badge-approved">Tersedia</span>
@@ -216,7 +222,12 @@
             </td>
             <td data-label="Aksi">
               <div class="action-group">
-                <button class="btn-act btn-edit" onclick="alert('Fitur Edit tahap pengembangan')">Edit</button>
+                <button class="btn-act btn-edit" onclick="openEditVehicleModal({{ $v->id }}, '{{ addslashes($v->nama_kendaraan) }}', '{{ addslashes($v->plat_nomor) }}')">Edit</button>
+                <form action="{{ route('admin.vehicles.delete', $v->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus kendaraan ini?');" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn-act btn-delete">Hapus</button>
+                </form>
               </div>
             </td>
           </tr>
@@ -227,12 +238,42 @@
       </table>
     </div>
 
-    <!-- Tab 2: Pengembalian (Tahap Pengembangan) -->
+    <!-- Tab 2: Pengembalian -->
     <div id="tab-pengembalian" class="tab-content card-table">
       <div class="card-header">
-        <h2>Monitoring Pengembalian</h2>
+        <h2>Monitoring Pengembalian Kendaraan</h2>
       </div>
-      <p style="text-align:center; padding: 2rem; color: #888;">Sedang dalam tahap migrasi ke backend (Tahap Pengembangan).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>NIP</th>
+            <th>Pegawai</th>
+            <th>Kendaraan</th>
+            <th>Masa Pinjam</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($approvedLoans as $loan)
+          <tr>
+            <td data-label="NIP">{{ $loan->nip }}</td>
+            <td data-label="Pegawai"><strong>{{ $loan->nama_peminjam }}</strong></td>
+            <td data-label="Kendaraan">{{ $loan->vehicle ? $loan->vehicle->nama_kendaraan : 'Mobil Dihapus' }}</td>
+            <td data-label="Masa Pinjam">{{ $loan->masa_pinjam }}</td>
+            <td data-label="Status"><span class="badge badge-approved">Sedang Dipinjam</span></td>
+            <td data-label="Aksi">
+              <form action="{{ route('admin.loans.return', $loan->id) }}" method="POST" onsubmit="return confirm('Konfirmasi kendaraan telah dikembalikan dengan aman?');">
+                @csrf
+                <button type="submit" class="btn-act btn-info" style="background-color: var(--info); color:white;">Selesaikan / Dikembalikan</button>
+              </form>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="6" style="text-align:center; color:#888;">Tidak ada kendaraan yang sedang dipinjam saat ini.</td></tr>
+          @endforelse
+        </tbody>
+      </table>
     </div>
 
     <!-- Tab 4: User -->
@@ -278,12 +319,86 @@
       </table>
     </div>
 
-    <!-- Tab 5: Log Aktivitas (Tahap Pengembangan) -->
+    <!-- Tab 5: Log Aktivitas -->
     <div id="tab-log" class="tab-content card-table">
       <div class="card-header">
-        <h2>Log Aktivitas</h2>
+        <h2>Riwayat Peminjaman (Log)</h2>
       </div>
-      <p style="text-align:center; padding: 2rem; color: #888;">Sedang dalam tahap migrasi ke backend (Tahap Pengembangan).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu Selesai</th>
+            <th>Pegawai</th>
+            <th>Kendaraan</th>
+            <th>Keperluan</th>
+            <th>Status Akhir</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($logLoans as $loan)
+          <tr>
+            <td data-label="Waktu Selesai"><small>{{ $loan->updated_at->format('d/m/Y H:i') }}</small></td>
+            <td data-label="Pegawai"><strong>{{ $loan->nama_peminjam }}</strong></td>
+            <td data-label="Kendaraan">{{ $loan->vehicle ? $loan->vehicle->nama_kendaraan : 'Mobil Dihapus' }}</td>
+            <td data-label="Keperluan">{{ $loan->keperluan }}</td>
+            <td data-label="Status Akhir">
+              @if($loan->status === 'returned')
+                <span class="badge badge-success" style="background: #D1FAE5; color: #059669;">Selesai/Dikembalikan</span>
+              @else
+                <span class="badge badge-danger" style="background: #FEE2E2; color: #DC2626;">Ditolak</span>
+              @endif
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="5" style="text-align:center; color:#888;">Belum ada riwayat aktivitas.</td></tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Tambah Kendaraan -->
+  <div id="modalAddVehicle" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tambah Kendaraan Baru</h2>
+        <span class="close" onclick="closeModal('modalAddVehicle')">&times;</span>
+      </div>
+      <form action="{{ route('admin.vehicles.store') }}" method="POST">
+        @csrf
+        <div class="form-group">
+          <label>Nama Kendaraan (Contoh: Toyota Rush)</label>
+          <input type="text" name="nama_kendaraan" required>
+        </div>
+        <div class="form-group">
+          <label>Plat Nomor</label>
+          <input type="text" name="plat_nomor" required>
+        </div>
+        <button type="submit" class="btn-submit">Simpan Kendaraan</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Edit Kendaraan -->
+  <div id="modalEditVehicle" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Kendaraan</h2>
+        <span class="close" onclick="closeModal('modalEditVehicle')">&times;</span>
+      </div>
+      <form id="formEditVehicle" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+          <label>Nama Kendaraan</label>
+          <input type="text" id="edit_v_nama" name="nama_kendaraan" required>
+        </div>
+        <div class="form-group">
+          <label>Plat Nomor</label>
+          <input type="text" id="edit_v_plat" name="plat_nomor" required>
+        </div>
+        <button type="submit" class="btn-submit">Update Kendaraan</button>
+      </form>
     </div>
   </div>
 
@@ -353,6 +468,13 @@
       document.getElementById('edit_nip').value = nip;
       document.getElementById('edit_nama').value = nama;
       openModal('modalEditEmployee');
+    }
+
+    function openEditVehicleModal(id, nama, plat) {
+      document.getElementById('formEditVehicle').action = '/admin/vehicles/' + id;
+      document.getElementById('edit_v_nama').value = nama;
+      document.getElementById('edit_v_plat').value = plat;
+      openModal('modalEditVehicle');
     }
   </script>
 

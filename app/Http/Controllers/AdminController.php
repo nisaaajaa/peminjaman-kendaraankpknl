@@ -10,17 +10,17 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // Get all loans that are currently active (not yet returned, or waiting approval)
-        // Since we don't have a status column in `loans` table in the migration,
-        // we'll just fetch all loans for now. 
-        // Note: For a real app, `loans` should have a `status` (pending, approved, returned).
-        // I will pass the vehicles as well.
-        $loans = Loan::with('vehicle')->orderBy('created_at', 'desc')->get();
+        $pendingLoans = Loan::with('vehicle')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
+        $approvedLoans = Loan::with('vehicle')->where('status', 'approved')->orderBy('created_at', 'desc')->get();
+        $logLoans = Loan::with('vehicle')->whereIn('status', ['returned', 'rejected'])->orderBy('updated_at', 'desc')->get();
+        
         $vehicles = Vehicle::all();
         $employees = \App\Models\Employee::all();
 
-        return view('admin.dashboard', compact('loans', 'vehicles', 'employees'));
+        return view('admin.dashboard', compact('pendingLoans', 'approvedLoans', 'logLoans', 'vehicles', 'employees'));
     }
+
+    // --- CRUD PEGAWAI ---
     public function storeEmployee(Request $request)
     {
         $request->validate([
@@ -59,5 +59,93 @@ class AdminController extends Controller
         $employee->delete();
 
         return redirect()->back()->with('success', 'Pegawai berhasil dihapus.');
+    }
+
+    // --- CRUD KENDARAAN ---
+    public function storeVehicle(Request $request)
+    {
+        $request->validate([
+            'nama_kendaraan' => 'required|string|max:255',
+            'plat_nomor' => 'required|string|max:255',
+        ]);
+
+        Vehicle::create([
+            'nama_kendaraan' => $request->nama_kendaraan,
+            'plat_nomor' => $request->plat_nomor,
+            'status' => 'tersedia',
+        ]);
+
+        return redirect()->back()->with('success', 'Kendaraan berhasil ditambahkan.');
+    }
+
+    public function updateVehicle(Request $request, $id)
+    {
+        $vehicle = Vehicle::findOrFail($id);
+
+        $request->validate([
+            'nama_kendaraan' => 'required|string|max:255',
+            'plat_nomor' => 'required|string|max:255',
+        ]);
+
+        $vehicle->update([
+            'nama_kendaraan' => $request->nama_kendaraan,
+            'plat_nomor' => $request->plat_nomor,
+        ]);
+
+        return redirect()->back()->with('success', 'Data kendaraan berhasil diperbarui.');
+    }
+
+    public function deleteVehicle($id)
+    {
+        $vehicle = Vehicle::findOrFail($id);
+        
+        // Prevent deletion if vehicle is currently loaned out (approved)
+        $activeLoan = Loan::where('vehicle_id', $id)->where('status', 'approved')->first();
+        if ($activeLoan) {
+            return redirect()->back()->withErrors(['error' => 'Kendaraan tidak dapat dihapus karena sedang dipinjam.']);
+        }
+
+        $vehicle->delete();
+        return redirect()->back()->with('success', 'Kendaraan berhasil dihapus.');
+    }
+
+    // --- AKSI PEMINJAMAN ---
+    public function approveLoan($id)
+    {
+        $loan = Loan::findOrFail($id);
+        $vehicle = Vehicle::find($loan->vehicle_id);
+
+        if (!$vehicle || $vehicle->status === 'dipinjam') {
+            return redirect()->back()->withErrors(['error' => 'Kendaraan tidak tersedia atau sudah dipinjam orang lain.']);
+        }
+
+        $loan->update(['status' => 'approved']);
+        $vehicle->update(['status' => 'dipinjam']);
+
+        return redirect()->back()->with('success', 'Peminjaman disetujui.');
+    }
+
+    public function rejectLoan($id)
+    {
+        $loan = Loan::findOrFail($id);
+        $loan->update(['status' => 'rejected']);
+        return redirect()->back()->with('success', 'Peminjaman ditolak.');
+    }
+
+    public function returnLoan($id)
+    {
+        $loan = Loan::findOrFail($id);
+        if ($loan->status !== 'approved') {
+            return redirect()->back()->withErrors(['error' => 'Hanya peminjaman aktif yang bisa dikembalikan.']);
+        }
+
+        $loan->update(['status' => 'returned']);
+        
+        $vehicle = Vehicle::find($loan->vehicle_id);
+        if ($vehicle) {
+            $vehicle->update(['status' => 'tersedia']);
+        }
+
+        return redirect()->back()->with('success', 'Kendaraan berhasil dikembalikan.');
     }
 }

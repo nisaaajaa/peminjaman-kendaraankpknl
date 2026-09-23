@@ -86,11 +86,8 @@ class VehicleController extends Controller
         }
 
         // 3. Simpan Data Peminjaman
-        $vehicle = Vehicle::find($id);
-
-        if ($vehicle) {
-            $vehicle->update(['status' => 'dipinjam']);
-        }
+        // Kendaraan tidak langsung di-update menjadi 'dipinjam'
+        // Status peminjaman defaultnya adalah 'pending' (menunggu persetujuan Admin)
 
         $masaPinjam = $request->tgl_pinjam . ' s.d. ' . $request->tgl_kembali;
 
@@ -100,6 +97,7 @@ class VehicleController extends Controller
             'nama_peminjam' => $request->nama_pegawai,
             'masa_pinjam'   => $masaPinjam,
             'keperluan'     => $request->keperluan . ' (Seksi: ' . $request->seksi . ')',
+            'status'        => 'pending',
         ]);
 
         return redirect('/')->with('success', 'Berhasil mengajukan peminjaman!');
