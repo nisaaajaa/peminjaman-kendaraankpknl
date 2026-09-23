@@ -67,7 +67,7 @@ class VehicleController extends Controller
 
         // 1. Verifikasi Cloudflare Turnstile
         $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret' => '1x0000000000000000000000000000000AA', // Dummy test secret key
+            'secret' => env('TURNSTILE_SECRET_KEY'),
             'response' => $request->input('cf-turnstile-response'),
             'remoteip' => $request->ip(),
         ]);

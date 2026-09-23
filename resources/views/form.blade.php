@@ -171,7 +171,7 @@
 
       <!-- Cloudflare Turnstile -->
       <div class="form-group" style="display: flex; justify-content: center; margin-top: 1rem;">
-        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+        <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
       </div>
 
       <!-- Tombol Aksi -->
