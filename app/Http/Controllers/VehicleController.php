@@ -49,7 +49,9 @@ class VehicleController extends Controller
             return redirect('/')->with('error', 'Kendaraan sedang digunakan!');
         }
 
-        return view('form', compact('vehicle'));
+        $employees = Employee::orderBy('nama_pegawai', 'asc')->get();
+
+        return view('form', compact('vehicle', 'employees'));
     }
 
     // Menyimpan permohonan peminjaman

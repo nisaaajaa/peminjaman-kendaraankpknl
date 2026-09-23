@@ -113,28 +113,9 @@
         <label for="nama_pegawai">Nama Lengkap Pegawai</label>
         <select id="nama_pegawai" name="nama_pegawai" class="form-control" required>
           <option value="">-- Pilih Nama Pegawai --</option>
-          <option value="MOHAMAD RIYANTO">MOHAMAD RIYANTO</option>
-          <option value="MARYANTO">MARYANTO</option>
-          <option value="RAHMAD SIGIT">RAHMAD SIGIT</option>
-          <option value="MUHAMMAD GANJAR NUGRAHA">MUHAMMAD GANJAR NUGRAHA</option>
-          <option value="MUCHTAR NURWAHIDZAIN">MUCHTAR NURWAHIDZAIN</option>
-          <option value="BARNO">BARNO</option>
-          <option value="ISMARUDDIN">ISMARUDDIN</option>
-          <option value="RUBIN HARYADI">RUBIN HARYADI</option>
-          <option value="JOHAN WAHYUDI">JOHAN WAHYUDI</option>
-          <option value="YOGI WISAKSONO">YOGI WISAKSONO</option>
-          <option value="MELVIN INDRIANI">MELVIN INDRIANI</option>
-          <option value="ADE HENDRA VASKAH TARIGAN">ADE HENDRA VASKAH TARIGAN</option>
-          <option value="ANGGA APRIANTO">ANGGA APRIANTO</option>
-          <option value="HABIB BURAKHMAN">HABIB BURAKHMAN</option>
-          <option value="WAHIDIN HARYA DITAMA">WAHIDIN HARYA DITAMA</option>
-          <option value="WIDI WIDAYAT">WIDI WIDAYAT</option>
-          <option value="ADHYTIA PRATAMA ALBEN">ADHYTIA PRATAMA ALBEN</option>
-          <option value="MEYZAR AHMAD">MEYZAR AHMAD</option>
-          <option value="MUHAMAD RIZKIANA GUMILANG">MUHAMAD RIZKIANA GUMILANG</option>
-          <option value="AHMAD NOPRAN">AHMAD NOPRAN</option>
-          <option value="AMELIA RIZKYANTI">AMELIA RIZKYANTI</option>
-          <option value="SANTO SULANDRY">SANTO SULANDRY</option>
+          @foreach($employees as $emp)
+            <option value="{{ $emp->nama_pegawai }}">{{ $emp->nama_pegawai }}</option>
+          @endforeach
         </select>
       </div>
 
