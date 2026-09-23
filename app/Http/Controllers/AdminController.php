@@ -130,11 +130,20 @@ class AdminController extends Controller
         $request->validate([
             'nama_kendaraan' => 'required|string|max:255',
             'plat_nomor' => 'required|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        $fotoName = null;
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $fotoName = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('images'), $fotoName);
+        }
 
         Vehicle::create([
             'nama_kendaraan' => $request->nama_kendaraan,
             'plat_nomor' => $request->plat_nomor,
+            'foto' => $fotoName,
             'status' => 'tersedia',
         ]);
 
@@ -148,12 +157,26 @@ class AdminController extends Controller
         $request->validate([
             'nama_kendaraan' => 'required|string|max:255',
             'plat_nomor' => 'required|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $vehicle->update([
+        $data = [
             'nama_kendaraan' => $request->nama_kendaraan,
             'plat_nomor' => $request->plat_nomor,
-        ]);
+        ];
+
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $fotoName = time() . '_' . $foto->getClientOriginalName();
+            $foto->move(public_path('images'), $fotoName);
+            $data['foto'] = $fotoName;
+
+            if ($vehicle->foto && file_exists(public_path('images/' . $vehicle->foto))) {
+                unlink(public_path('images/' . $vehicle->foto));
+            }
+        }
+
+        $vehicle->update($data);
 
         return redirect()->back()->with('success', 'Data kendaraan berhasil diperbarui.');
     }

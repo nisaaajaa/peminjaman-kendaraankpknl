@@ -15,4 +15,9 @@ class Vehicle extends Model
         'foto',
         'status',
     ];
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

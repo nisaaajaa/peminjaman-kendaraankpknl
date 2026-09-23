@@ -13,19 +13,9 @@ class VehicleController extends Controller
     // Menampilkan halaman utama
     public function index()
     {
-        $vehicles = Vehicle::all();
-
-        if ($vehicles->isEmpty()) {
-            $vehicles = collect([
-                (object)[
-                    'id' => 1,
-                    'nama_kendaraan' => 'Toyota Rush',
-                    'plat_nomor' => 'BE 1007 FZ',
-                    'foto' => 'toyotarush.jpg',
-                    'status' => 'tersedia'
-                ]
-            ]);
-        }
+        $vehicles = Vehicle::with(['loans' => function($query) {
+            $query->whereIn('status', ['pending', 'approved'])->orderBy('created_at', 'desc');
+        }])->get();
 
         return view('home', compact('vehicles'));
     }

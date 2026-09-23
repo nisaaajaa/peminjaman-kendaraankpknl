@@ -156,40 +156,45 @@
     </div>
 
     <div class="vehicle-grid">
-      <!-- Mobil 1 -->
-      <div class="vehicle-card" data-name="Toyota Rush - BE 1007 FZ" data-id="1">
-        <img src="{{ asset('images/toyotarush.jpg') }}" class="vehicle-img">
-        <div class="vehicle-name">Toyota Rush - BE 1007 FZ</div>
-        <div class="status-container"></div>
-      </div>
+      @forelse($vehicles as $vehicle)
+      <div class="vehicle-card">
+        @if($vehicle->foto)
+          <img src="{{ asset('images/' . $vehicle->foto) }}" class="vehicle-img" alt="Foto Kendaraan">
+        @else
+          <div class="vehicle-img" style="background:#e2e8f0; display:flex; align-items:center; justify-content:center; color:#64748b;">No Image</div>
+        @endif
+        <div class="vehicle-name">{{ $vehicle->nama_kendaraan }} - {{ $vehicle->plat_nomor }}</div>
+        <div class="status-container">
+          @php
+              $activeLoan = $vehicle->loans->first();
+          @endphp
 
-      <!-- Mobil 2 -->
-      <div class="vehicle-card" data-name="Toyota Rush - BE 1068 FZ" data-id="2">
-        <img src="{{ asset('images/toyotarush2.jpg') }}" class="vehicle-img">
-        <div class="vehicle-name">Toyota Rush - BE 1068 FZ</div>
-        <div class="status-container"></div>
+          @if($activeLoan && $activeLoan->status === 'approved')
+              <span class="badge badge-busy">✕ Dalam Masa Dinas</span>
+              <p class="vehicle-desc" style="color: var(--danger); font-weight: 600;">
+                Sedang dipinjam oleh <strong>{{ $activeLoan->nama_peminjam }}</strong><br>
+                <small style="color: #7F8C8D;">({{ $activeLoan->masa_pinjam }})</small>
+              </p>
+              <span class="btn-action btn-disabled">Tidak Dapat Dipinjam</span>
+          @elseif($activeLoan && $activeLoan->status === 'pending')
+              <span class="badge badge-pending">⏳ Menunggu Persetujuan</span>
+              <p class="vehicle-desc" style="color: var(--warning); font-weight: 600;">
+                Diajukan oleh <strong>{{ $activeLoan->nama_peminjam }}</strong><br>
+                <small style="color: #7F8C8D;">(Menunggu konfirmasi admin)</small>
+              </p>
+              <span class="btn-action btn-disabled">Prosedur Verifikasi</span>
+          @else
+              <span class="badge badge-available">✓ Belum Dipinjam</span>
+              <p class="vehicle-desc">Kendaraan siap digunakan untuk perjalanan dinas resmi kantor.</p>
+              <a href="{{ url('/pinjam/' . $vehicle->id) }}" class="btn-action btn-primary">Pinjam Kendaraan</a>
+          @endif
+        </div>
       </div>
-
-      <!-- Mobil 3 -->
-      <div class="vehicle-card" data-name="Toyota Kijang Innova - BE 1101 FZ" data-id="3">
-        <img src="{{ asset('images/innova.jpg') }}" class="vehicle-img">
-        <div class="vehicle-name">Toyota Kijang Innova - BE 1101 FZ</div>
-        <div class="status-container"></div>
-      </div>
-
-      <!-- Mobil 4 -->
-      <div class="vehicle-card" data-name="Mitsubishi Xpander - BE 1006 FZ" data-id="4">
-        <img src="{{ asset('images/xpander.jpg') }}" class="vehicle-img">
-        <div class="vehicle-name">Mitsubishi Xpander - BE 1006 FZ</div>
-        <div class="status-container"></div>
-      </div>
-
-      <!-- Mobil 5 -->
-      <div class="vehicle-card" data-name="Toyota Hilux - B 9440 PSE" data-id="5">
-        <img src="{{ asset('images/hilux.jpg') }}" class="vehicle-img">
-        <div class="vehicle-name">Toyota Hilux - B 9440 PSE</div>
-        <div class="status-container"></div>
-      </div>
+      @empty
+        <div style="grid-column: 1 / -1; text-align: center; color: #888; padding: 2rem;">
+            <h3>Belum ada kendaraan yang terdaftar.</h3>
+        </div>
+      @endforelse
     </div>
   </div>
 
@@ -198,51 +203,7 @@
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-      const cards = document.querySelectorAll('.vehicle-card');
-      const today = new Date().toISOString().split('T')[0];
-
-      cards.forEach((card) => {
-        const namaMobil = card.getAttribute('data-name');
-        const mobilId = card.getAttribute('data-id') || '1';
-        const container = card.querySelector('.status-container');
-        const dataPinjam = statusMobil[namaMobil];
-
-        if (dataPinjam && dataPinjam.tglKembali >= today) {
-          if (dataPinjam.statusApproval === 'Pending') {
-            container.innerHTML = `
-              <span class="badge badge-pending">⏳ Menunggu Persetujuan</span>
-              <p class="vehicle-desc" style="color: var(--warning); font-weight: 600;">
-                Diajukan oleh <strong>${dataPinjam.peminjam}</strong><br>
-                <small style="color: #7F8C8D;">(Menunggu konfirmasi admin)</small>
-              </p>
-              <span class="btn-action btn-disabled">Prosedur Verifikasi</span>
-            `;
-          } else {
-            container.innerHTML = `
-              <span class="badge badge-busy">✕ Dalam Masa Dinas</span>
-              <p class="vehicle-desc" style="color: var(--danger); font-weight: 600;">
-                Sedang dipinjam oleh <strong>${dataPinjam.peminjam}</strong><br>
-                <small style="color: #7F8C8D;">(s.d. ${dataPinjam.tglKembali})</small>
-              </p>
-              <span class="btn-action btn-disabled">Tidak Dapat Dipinjam</span>
-            `;
-          }
-        } else {
-          if (dataPinjam && dataPinjam.tglKembali < today) {
-            delete statusMobil[namaMobil];
-            localStorage.setItem('statusMobil', JSON.stringify(statusMobil));
-          }
-
-          container.innerHTML = `
-            <span class="badge badge-available">✓ Belum Dipinjam</span>
-            <p class="vehicle-desc">Kendaraan siap digunakan untuk perjalanan dinas resmi kantor.</p>
-            <a href="/pinjam/${mobilId}" class="btn-action btn-primary">Pinjam Kendaraan</a>
-          `;
-        }
-      });
-    });
+    // Status is now managed entirely by the server. No local storage needed.
   </script>
 
 </body>

@@ -9,14 +9,44 @@ class VehicleSeeder extends Seeder
 {
     public function run(): void
     {
-        Vehicle::create([
-            'nama_kendaraan' => 'Avanza 2022',
-            'status' => 'tersedia'
-        ]);
+        $vehicles = [
+            [
+                'nama_kendaraan' => 'Toyota Rush',
+                'plat_nomor' => 'BE 1007 FZ',
+                'foto' => 'toyotarush.jpg',
+                'status' => 'tersedia'
+            ],
+            [
+                'nama_kendaraan' => 'Toyota Rush',
+                'plat_nomor' => 'BE 1068 FZ',
+                'foto' => 'toyotarush2.jpg',
+                'status' => 'tersedia'
+            ],
+            [
+                'nama_kendaraan' => 'Toyota Kijang Innova',
+                'plat_nomor' => 'BE 1101 FZ',
+                'foto' => 'innova.jpg',
+                'status' => 'tersedia'
+            ],
+            [
+                'nama_kendaraan' => 'Mitsubishi Xpander',
+                'plat_nomor' => 'BE 1006 FZ',
+                'foto' => 'xpander.jpg',
+                'status' => 'tersedia'
+            ],
+            [
+                'nama_kendaraan' => 'Toyota Hilux',
+                'plat_nomor' => 'B 9440 PSE',
+                'foto' => 'hilux.jpg',
+                'status' => 'tersedia'
+            ],
+        ];
 
-        Vehicle::create([
-            'nama_kendaraan' => 'Innova',
-            'status' => 'tersedia'
-        ]);
+        foreach ($vehicles as $v) {
+            Vehicle::updateOrCreate(
+                ['plat_nomor' => $v['plat_nomor']],
+                $v
+            );
+        }
     }
 }

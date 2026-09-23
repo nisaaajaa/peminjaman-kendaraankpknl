@@ -212,7 +212,14 @@
           @forelse($vehicles as $v)
           <tr>
             <td data-label="ID">#{{ $v->id }}</td>
-            <td data-label="Nama & Plat"><strong>{{ $v->nama_kendaraan }} ({{ $v->plat_nomor }})</strong></td>
+            <td data-label="Nama & Plat">
+              @if($v->foto)
+                <img src="{{ asset('images/' . $v->foto) }}" alt="Foto" style="height: 40px; width: 60px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 10px;">
+              @else
+                <div style="display:inline-block; height:40px; width:60px; background:#e2e8f0; border-radius:4px; vertical-align:middle; margin-right:10px; text-align:center; line-height:40px; font-size:10px; color:#64748b;">No Image</div>
+              @endif
+              <strong>{{ $v->nama_kendaraan }} ({{ $v->plat_nomor }})</strong>
+            </td>
             <td data-label="Status Kendaraan">
               @if($v->status == 'tersedia')
                 <span class="badge badge-approved">Tersedia</span>
@@ -366,7 +373,7 @@
         <h2>Tambah Kendaraan Baru</h2>
         <span class="close" onclick="closeModal('modalAddVehicle')">&times;</span>
       </div>
-      <form action="{{ route('admin.vehicles.store') }}" method="POST">
+      <form action="{{ route('admin.vehicles.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-group">
           <label>Nama Kendaraan (Contoh: Toyota Rush)</label>
@@ -375,6 +382,10 @@
         <div class="form-group">
           <label>Plat Nomor</label>
           <input type="text" name="plat_nomor" required>
+        </div>
+        <div class="form-group">
+          <label>Foto Kendaraan</label>
+          <input type="file" name="foto" accept="image/*" style="padding: 0.5rem; border: none;">
         </div>
         <button type="submit" class="btn-submit">Simpan Kendaraan</button>
       </form>
@@ -388,7 +399,7 @@
         <h2>Edit Kendaraan</h2>
         <span class="close" onclick="closeModal('modalEditVehicle')">&times;</span>
       </div>
-      <form id="formEditVehicle" method="POST">
+      <form id="formEditVehicle" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="form-group">
@@ -398,6 +409,10 @@
         <div class="form-group">
           <label>Plat Nomor</label>
           <input type="text" id="edit_v_plat" name="plat_nomor" required>
+        </div>
+        <div class="form-group">
+          <label>Ubah Foto (Opsional)</label>
+          <input type="file" name="foto" accept="image/*" style="padding: 0.5rem; border: none;">
         </div>
         <button type="submit" class="btn-submit">Update Kendaraan</button>
       </form>
