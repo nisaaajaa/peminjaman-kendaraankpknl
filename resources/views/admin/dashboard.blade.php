@@ -96,6 +96,20 @@
       .action-group { justify-content: flex-end; margin-top: 0.5rem; }
       .btn-act { padding: 0.6rem 0.8rem; flex: 1; text-align: center; }
     }
+
+    /* Modal Styles */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close:hover { color: black; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.9rem; }
+    .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #CBD5E1; border-radius: 4px; font-size: 1rem; }
+    .btn-submit { background-color: var(--kemenkeu-main); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 1rem; }
+    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; font-weight: bold; }
+    .alert-success { background-color: #D1FAE5; color: #059669; }
+    .alert-danger { background-color: #FEE2E2; color: #DC2626; }
   </style>
 </head>
 <body>
@@ -109,6 +123,19 @@
   </header>
 
   <div class="container">
+    @if(session('success'))
+      <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if($errors->any())
+      <div class="alert alert-danger">
+        <ul style="margin-left: 1.5rem;">
+          @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
+
     <!-- Navigasi Tab -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('peminjaman')">📋 CRUD Peminjaman</button>
@@ -213,7 +240,7 @@
       <div class="card-header">
         <h2>Kelola Data User & Pegawai</h2>
         <div>
-          <button class="btn-act btn-add" onclick="alert('Fitur Tambah tahap pengembangan')">+ Tambah Pegawai</button>
+          <button class="btn-act btn-add" onclick="openModal('modalAddEmployee')">+ Tambah Pegawai</button>
         </div>
       </div>
       <table>
@@ -235,8 +262,12 @@
             <td data-label="Terdaftar Sejak">{{ $emp->created_at->format('d/m/Y') }}</td>
             <td data-label="Aksi">
               <div class="action-group">
-                <button class="btn-act btn-edit" onclick="alert('Fitur Edit tahap pengembangan')">Edit</button>
-                <button class="btn-act btn-delete" onclick="alert('Fitur Hapus tahap pengembangan')">Hapus</button>
+                <button class="btn-act btn-edit" onclick="openEditEmployeeModal({{ $emp->id }}, '{{ $emp->nip }}', '{{ addslashes($emp->nama_pegawai) }}')">Edit</button>
+                <form action="{{ route('admin.employees.delete', $emp->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pegawai ini?');" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn-act btn-delete">Hapus</button>
+                </form>
               </div>
             </td>
           </tr>
@@ -256,12 +287,72 @@
     </div>
   </div>
 
+  <!-- Modal Tambah Pegawai -->
+  <div id="modalAddEmployee" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tambah Pegawai Baru</h2>
+        <span class="close" onclick="closeModal('modalAddEmployee')">&times;</span>
+      </div>
+      <form action="{{ route('admin.employees.store') }}" method="POST">
+        @csrf
+        <div class="form-group">
+          <label>NIP</label>
+          <input type="text" name="nip" required placeholder="Masukkan NIP (18 digit)">
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" name="nama_pegawai" required placeholder="Masukkan Nama Lengkap">
+        </div>
+        <button type="submit" class="btn-submit">Simpan Data</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Edit Pegawai -->
+  <div id="modalEditEmployee" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Data Pegawai</h2>
+        <span class="close" onclick="closeModal('modalEditEmployee')">&times;</span>
+      </div>
+      <form id="formEditEmployee" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+          <label>NIP</label>
+          <input type="text" id="edit_nip" name="nip" required>
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="edit_nama" name="nama_pegawai" required>
+        </div>
+        <button type="submit" class="btn-submit">Update Data</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       event.target.classList.add('active');
       document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function openEditEmployeeModal(id, nip, nama) {
+      document.getElementById('formEditEmployee').action = '/admin/employees/' + id;
+      document.getElementById('edit_nip').value = nip;
+      document.getElementById('edit_nama').value = nama;
+      openModal('modalEditEmployee');
     }
   </script>
 

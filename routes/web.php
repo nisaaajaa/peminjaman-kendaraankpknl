@@ -26,6 +26,11 @@ Route::get('/login', function () {
 // Rute Dashboard Admin (Menggunakan Controller)
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
+// Rute CRUD Pegawai
+Route::post('/admin/employees', [AdminController::class, 'storeEmployee'])->name('admin.employees.store');
+Route::put('/admin/employees/{id}', [AdminController::class, 'updateEmployee'])->name('admin.employees.update');
+Route::delete('/admin/employees/{id}', [AdminController::class, 'deleteEmployee'])->name('admin.employees.delete');
+
 // Rute Logout
 Route::get('/logout', function () {
     return redirect()->route('login');

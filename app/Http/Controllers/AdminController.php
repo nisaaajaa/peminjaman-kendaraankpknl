@@ -21,4 +21,43 @@ class AdminController extends Controller
 
         return view('admin.dashboard', compact('loans', 'vehicles', 'employees'));
     }
+    public function storeEmployee(Request $request)
+    {
+        $request->validate([
+            'nip' => 'required|numeric|unique:employees,nip',
+            'nama_pegawai' => 'required|string|max:255',
+        ]);
+
+        \App\Models\Employee::create([
+            'nip' => $request->nip,
+            'nama_pegawai' => strtoupper($request->nama_pegawai),
+        ]);
+
+        return redirect()->back()->with('success', 'Pegawai berhasil ditambahkan.');
+    }
+
+    public function updateEmployee(Request $request, $id)
+    {
+        $employee = \App\Models\Employee::findOrFail($id);
+
+        $request->validate([
+            'nip' => 'required|numeric|unique:employees,nip,' . $employee->id,
+            'nama_pegawai' => 'required|string|max:255',
+        ]);
+
+        $employee->update([
+            'nip' => $request->nip,
+            'nama_pegawai' => strtoupper($request->nama_pegawai),
+        ]);
+
+        return redirect()->back()->with('success', 'Data pegawai berhasil diperbarui.');
+    }
+
+    public function deleteEmployee($id)
+    {
+        $employee = \App\Models\Employee::findOrFail($id);
+        $employee->delete();
+
+        return redirect()->back()->with('success', 'Pegawai berhasil dihapus.');
+    }
 }
