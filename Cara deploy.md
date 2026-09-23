@@ -34,7 +34,7 @@ Untuk aplikasi kelas profesional seperti Vercel dan Railway, sistem mereka selal
 Tenang saja, di Railway membuat MySQL hanya butuh satu klik!
 
 1. Di layar utama Railway, klik tombol ungu bertuliskan **New Project** (atau tombol ikon **+**).
-2. Akan muncul daftar panjang, silakan cari dan klik pilihan **Provision MySQL**.
+2. Akan muncul daftar panjang, silakan cari dan klik pilihan **Database**, lalu pilih **MySQL** (di beberapa tampilan mungkin hanya tertulis **MySQL**).
 3. Tunggu beberapa detik sampai muncul sebuah kotak ungu di layar Anda. Selamat, Anda baru saja berhasil membuat server *database* sungguhan!
 
 ---
@@ -43,11 +43,13 @@ Tenang saja, di Railway membuat MySQL hanya butuh satu klik!
 
 Sekarang, kita harus memasukkan kode aplikasi Peminjaman Anda dari GitHub agar berdampingan dengan kotak MySQL tadi.
 
-1. Di proyek Railway yang sama (tempat kotak MySQL tadi berada), klik tombol **New** di pojok kanan atas (atau klik sembarang tempat kosong di layar kotak-kotak itu, lalu pilih **New**).
-2. Pilih **Deploy from GitHub repo**.
+1. Arahkan kursor (*mouse*) Anda ke sembarang area kosong di layar hitam kotak-kotak tersebut, lalu **Klik Kanan**, dan pilih menu **New**. (Atau tekan tombol **Ctrl + K** secara bersamaan di *keyboard* Anda).
+2. Pilih **GitHub Repo** (atau Deploy from GitHub repo).
 3. Jika ditanya izin, beri izin Railway untuk membaca repositori GitHub Anda.
 4. Pilih nama repositori aplikasi Peminjaman Kendaraan Anda (contoh: `nisaaajaa/peminjaman-kendaraankpknl`).
-5. Selesai! Anda akan melihat sebuah kotak baru muncul di sebelah kotak MySQL. Kotak baru itu adalah aplikasi web Anda.
+5. Akan muncul kotak baru (berlogo GitHub) di sebelah kotak MySQL. **Tunggu dulu, prosesnya belum selesai!**
+6. Lihat ke **bagian atas-tengah layar**, cari dan klik tombol ungu bertuliskan **Deploy** (biasanya ada keterangan *Apply changes*).
+7. Selesai! Mesin Railway sekarang akan langsung merakit kode Anda. Kotak baru itu adalah aplikasi web Anda.
 
 ---
 
@@ -57,14 +59,16 @@ Aplikasi web Anda dan MySQL Anda saat ini masih terpisah dan belum saling kenal.
 
 *(Catatan: Saya sudah menyuntikkan "kode ajaib" di dalam proyek ini sehingga Anda hanya perlu menambahkan 1 kata sandi rahasia saja. Sangat mudah!)*
 
-1. Klik kotak **Aplikasi Web** Anda di layar Railway (bukan kotak MySQL).
+1. Klik kotak **Aplikasi Web** Anda di layar Railway.
 2. Di jendela pengaturan yang muncul, klik menu tab **Variables** (Variabel).
-3. Di layar tersebut, klik tombol **New Variable** (Variabel Baru).
-4. Akan ada 2 kotak isian. Isi persis seperti ini:
+3. Klik tombol **New Variable**, lalu pilih **Add Reference** (Tambah Referensi).
+4. Pilih kotak **MySQL**, lalu centang/pilih semua variabel yang muncul di daftar tersebut (terutama `MYSQLHOST`, `MYSQLUSER`, `MYSQLPASSWORD`, `MYSQLDATABASE`), lalu klik **Add**. (Langkah ini untuk menyambungkan kabel listrik ke database).
+5. Selanjutnya, klik **New Variable** satu kali lagi (pilih *Empty Variable* atau *Raw*).
+6. Akan ada 2 kotak isian. Isi persis seperti ini:
    - Kotak Kiri (VARIABLE_NAME): ketik `DB_CONNECTION`
    - Kotak Kanan (VALUE): ketik `mysql`
-5. Setelah diisi, klik tombol **Add** (atau tekan Enter).
-6. Saat Anda menekan tombol Add, aplikasi akan otomatis memproses ulang kodenya (*Re-deploy*). Biarkan saja prosesnya berjalan!
+7. Klik tombol **Add** (atau tekan Enter).
+8. Selesai! Saat Anda menambahkan variabel ini, mesin Railway akan otomatis memproses ulang kodenya (*Re-deploy*). Biarkan saja prosesnya berjalan!
 
 ---
 

@@ -73,6 +73,7 @@
       margin: 2rem;
     }
   </style>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -82,13 +83,23 @@
       <p>KPKNL METRO - KEMENTERIAN KEUANGAN RI</p>
     </div>
 
-    <!-- PESAN SUKSES TERKIRIM -->
-    <div id="successMessage" class="alert-success">
-      <h3>✅ Permohonan Terkirim!</h3>
-      <p>Permohonan peminjaman kendaraan berhasil diproses. Mengalihkan ke halaman utama...</p>
+    <!-- Menampilkan Error Validasi Laravel -->
+    @if ($errors->any())
+    <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin: 1rem; border-radius: 8px;">
+      <ul style="margin-left: 1rem;">
+        @foreach ($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
     </div>
+    @endif
+    @if(session('error'))
+    <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin: 1rem; border-radius: 8px;">
+      {{ session('error') }}
+    </div>
+    @endif
 
-    <form id="loanForm" class="form-body" onsubmit="submitForm(event)">
+    <form id="loanForm" class="form-body" action="{{ route('pinjam.store', $vehicle->id) }}" method="POST">
       @csrf
 
       <!-- Kendaraan yang Dipinjam -->
@@ -127,6 +138,13 @@
         </select>
       </div>
 
+      <!-- NIP (Untuk Validasi Identitas) -->
+      <div class="form-group">
+        <label for="nip">NIP Pegawai</label>
+        <input type="number" id="nip" name="nip" class="form-control" placeholder="Masukkan 18 digit NIP Anda" required>
+        <small style="color: #64748B;">NIP digunakan untuk validasi identitas.</small>
+      </div>
+
       <!-- Seksi / Subbagian -->
       <div class="form-group">
         <label for="seksi">Seksi / Subbagian</label>
@@ -151,6 +169,11 @@
         <input type="date" id="tgl_kembali" name="tgl_kembali" class="form-control" required>
       </div>
 
+      <!-- Cloudflare Turnstile -->
+      <div class="form-group" style="display: flex; justify-content: center; margin-top: 1rem;">
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+      </div>
+
       <!-- Tombol Aksi -->
       <div class="form-actions">
         <a href="/" class="btn btn-cancel">Batal</a>
@@ -158,31 +181,6 @@
       </div>
     </form>
   </div>
-
-  <script>
-    function submitForm(event) {
-      event.preventDefault();
-      
-      const namaPegawai = document.getElementById('nama_pegawai').value;
-      const namaKendaraan = document.getElementById('nama_kendaraan').value;
-      const tglKembali = document.getElementById('tgl_kembali').value;
-
-      // Simpan data peminjam & masa pinjam
-      let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-      statusMobil[namaKendaraan] = {
-        peminjam: namaPegawai,
-        tglKembali: tglKembali
-      };
-      localStorage.setItem('statusMobil', JSON.stringify(statusMobil));
-
-      document.getElementById('loanForm').style.display = 'none';
-      document.getElementById('successMessage').style.display = 'block';
-
-      setTimeout(function() {
-        window.location.href = "/";
-      }, 2000);
-    }
-  </script>
 
 </body>
 </html>

@@ -18,5 +18,9 @@ class DatabaseSeeder extends Seeder
         Vehicle::create(['nama_kendaraan' => 'Toyota Kijang Innova - BE 1101 FZ', 'status' => 'tersedia']);
         Vehicle::create(['nama_kendaraan' => 'Mitsubishi Xpander - BE 1006 FZ', 'status' => 'tersedia']);
         Vehicle::create(['nama_kendaraan' => 'Toyota Hilux - B 9440 PSE', 'status' => 'tersedia']); // <-- Mobil ke-5
+        
+        $this->call([
+            EmployeeSeeder::class,
+        ]);
     }
 }

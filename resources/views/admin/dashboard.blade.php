@@ -65,7 +65,7 @@
     .badge-rejected { background: #FEE2E2; color: #DC2626; }
 
     .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
-    .btn-act { padding: 0.35rem 0.65rem; border-radius: 4px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 0.78rem; }
+    .btn-act { padding: 0.35rem 0.65rem; border-radius: 4px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 0.78rem; text-decoration: none; }
     .btn-add { background-color: var(--kemenkeu-main); padding: 0.5rem 1rem; }
     .btn-approve { background-color: var(--success); }
     .btn-reject { background-color: var(--danger); }
@@ -73,12 +73,6 @@
     .btn-delete { background-color: var(--danger); }
     .btn-act:hover { opacity: 0.85; }
 
-    /* Modal Form */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 2rem; border-radius: 8px; width: 400px; max-width: 90%; }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.3rem; }
-    .form-group input, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 4px; }
     /* Media Queries for Mobile Responsiveness */
     @media (max-width: 768px) {
       .container { width: 100%; padding: 0 1rem; margin: 1rem auto; }
@@ -90,7 +84,6 @@
       .card-header { flex-direction: column; gap: 1rem; align-items: stretch; text-align: center; }
       .card-header h2 { font-size: 1.2rem; }
       
-      /* Card Layout for Tables */
       table, thead, tbody, th, td, tr { display: block; }
       thead tr { position: absolute; top: -9999px; left: -9999px; }
       tr { margin-bottom: 1rem; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.5rem 1rem; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -119,9 +112,9 @@
     <!-- Navigasi Tab -->
     <div class="nav-tabs">
       <button class="tab-btn active" onclick="switchTab('peminjaman')">📋 CRUD Peminjaman</button>
-      <button class="tab-btn" onclick="switchTab('pengembalian')">🔄 CRUD Pengembalian</button>
-      <button class="tab-btn" onclick="switchTab('kendaraan')">🚗 CRUD Kendaraan</button>
-      <button class="tab-btn" onclick="switchTab('user')">👤 CRUD User</button>
+      <button class="tab-btn" onclick="switchTab('kendaraan')">🚗 Kendaraan</button>
+      <button class="tab-btn" onclick="switchTab('pengembalian')">🔄 Pengembalian</button>
+      <button class="tab-btn" onclick="switchTab('user')">👤 User</button>
       <button class="tab-btn" onclick="switchTab('log')">🕒 Log Aktivitas</button>
     </div>
 
@@ -134,8 +127,8 @@
         <thead>
           <tr>
             <th>Waktu Input</th>
+            <th>NIP</th>
             <th>Pegawai</th>
-            <th>Seksi</th>
             <th>Kendaraan</th>
             <th>Masa Pinjam</th>
             <th>Keperluan</th>
@@ -143,26 +136,27 @@
             <th>Aksi</th>
           </tr>
         </thead>
-        <tbody id="tb-peminjaman"></tbody>
-      </table>
-    </div>
-
-    <!-- Tab 2: Pengembalian -->
-    <div id="tab-pengembalian" class="tab-content card-table">
-      <div class="card-header">
-        <h2>Monitoring & CRUD Pengembalian</h2>
-      </div>
-      <table>
-        <thead>
+        <tbody>
+          @forelse($loans as $loan)
           <tr>
-            <th>Pegawai</th>
-            <th>Kendaraan</th>
-            <th>Batas Kembali</th>
-            <th>Status Pengembalian</th>
-            <th>Aksi</th>
+            <td data-label="Waktu Input"><small>{{ $loan->created_at->format('d/m/Y H:i') }}</small></td>
+            <td data-label="NIP">{{ $loan->nip }}</td>
+            <td data-label="Pegawai"><strong>{{ $loan->nama_peminjam }}</strong></td>
+            <td data-label="Kendaraan">{{ $loan->vehicle ? $loan->vehicle->nama_kendaraan : 'Mobil Dihapus' }}</td>
+            <td data-label="Masa Pinjam">{{ $loan->masa_pinjam }}</td>
+            <td data-label="Keperluan">{{ $loan->keperluan }}</td>
+            <td data-label="Status"><span class="badge badge-pending">Menunggu</span></td>
+            <td data-label="Aksi">
+              <div class="action-group">
+                <button class="btn-act btn-approve" onclick="alert('Fitur Setuju tahap pengembangan')">Setujui</button>
+                <button class="btn-act btn-reject" onclick="alert('Fitur Tolak tahap pengembangan')">Tolak</button>
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody id="tb-pengembalian"></tbody>
+          @empty
+          <tr><td colspan="8" style="text-align:center; color:#888;">Belum ada pengajuan peminjaman di Database.</td></tr>
+          @endforelse
+        </tbody>
       </table>
     </div>
 
@@ -170,18 +164,48 @@
     <div id="tab-kendaraan" class="tab-content card-table">
       <div class="card-header">
         <h2>Kelola Data Kendaraan Dinas</h2>
-        <button class="btn-act btn-add" onclick="openModalKendaraan()">+ Tambah Kendaraan</button>
+        <button class="btn-act btn-add" onclick="alert('Fitur Tambah tahap pengembangan')">+ Tambah Kendaraan</button>
       </div>
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Nama & Plat Kendaraan</th>
-            <th>Kondisi</th>
+            <th>Status Kendaraan</th>
             <th>Aksi</th>
           </tr>
         </thead>
-        <tbody id="tb-kendaraan"></tbody>
+        <tbody>
+          @forelse($vehicles as $v)
+          <tr>
+            <td data-label="ID">#{{ $v->id }}</td>
+            <td data-label="Nama & Plat"><strong>{{ $v->nama_kendaraan }}</strong></td>
+            <td data-label="Status Kendaraan">
+              @if($v->status == 'tersedia')
+                <span class="badge badge-approved">Tersedia</span>
+              @else
+                <span class="badge badge-rejected">Dipinjam</span>
+              @endif
+            </td>
+            <td data-label="Aksi">
+              <div class="action-group">
+                <button class="btn-act btn-edit" onclick="alert('Fitur Edit tahap pengembangan')">Edit</button>
+              </div>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="4" style="text-align:center; color:#888;">Tidak ada kendaraan di Database.</td></tr>
+          @endforelse
+        </tbody>
       </table>
+    </div>
+
+    <!-- Tab 2: Pengembalian (Tahap Pengembangan) -->
+    <div id="tab-pengembalian" class="tab-content card-table">
+      <div class="card-header">
+        <h2>Monitoring Pengembalian</h2>
+      </div>
+      <p style="text-align:center; padding: 2rem; color: #888;">Sedang dalam tahap migrasi ke backend (Tahap Pengembangan).</p>
     </div>
 
     <!-- Tab 4: User -->
@@ -189,459 +213,56 @@
       <div class="card-header">
         <h2>Kelola Data User & Pegawai</h2>
         <div>
-          <button class="btn-act btn-delete" onclick="clearAllUsers()" style="margin-right: 5px;">🗑️ Hapus Semua User</button>
-          <button class="btn-act btn-add" onclick="openModalUser()">+ Tambah User</button>
+          <button class="btn-act btn-add" onclick="alert('Fitur Tambah tahap pengembangan')">+ Tambah Pegawai</button>
         </div>
       </div>
       <table>
         <thead>
           <tr>
+            <th>ID</th>
+            <th>NIP</th>
             <th>Nama Pegawai</th>
-            <th>Seksi</th>
-            <th>Role</th>
+            <th>Terdaftar Sejak</th>
             <th>Aksi</th>
           </tr>
         </thead>
-        <tbody id="tb-user"></tbody>
+        <tbody>
+          @forelse($employees as $emp)
+          <tr>
+            <td data-label="ID">#{{ $emp->id }}</td>
+            <td data-label="NIP"><strong>{{ $emp->nip }}</strong></td>
+            <td data-label="Nama Pegawai">{{ $emp->nama_pegawai }}</td>
+            <td data-label="Terdaftar Sejak">{{ $emp->created_at->format('d/m/Y') }}</td>
+            <td data-label="Aksi">
+              <div class="action-group">
+                <button class="btn-act btn-edit" onclick="alert('Fitur Edit tahap pengembangan')">Edit</button>
+                <button class="btn-act btn-delete" onclick="alert('Fitur Hapus tahap pengembangan')">Hapus</button>
+              </div>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="5" style="text-align:center; color:#888;">Tidak ada data pegawai di Database.</td></tr>
+          @endforelse
+        </tbody>
       </table>
     </div>
 
-    <!-- Tab 5: Log Aktivitas -->
+    <!-- Tab 5: Log Aktivitas (Tahap Pengembangan) -->
     <div id="tab-log" class="tab-content card-table">
       <div class="card-header">
-        <h2>Log Aktivitas Penginputan System</h2>
-        <button class="btn-act btn-delete" onclick="clearAllLogs()">Hapus Semua Log</button>
+        <h2>Log Aktivitas</h2>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Waktu (Timestamp)</th>
-            <th>Pegawai / User</th>
-            <th>Aktivitas</th>
-            <th>Rincian</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tb-log"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Modal User -->
-  <div id="modalUser" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:1rem;">Tambah / Edit User</h3>
-      <input type="hidden" id="userIndex">
-      <div class="form-group"><label>Nama</label><input type="text" id="uNama"></div>
-      <div class="form-group">
-        <label>Seksi</label>
-        <select id="uSeksi">
-          <option value="Seksi PKN">Seksi PKN</option>
-          <option value="Subbag Umum">Subbag Umum</option>
-          <option value="Seksi PN">Seksi PN</option>
-          <option value="Seksi HI">Seksi HI</option>
-          <option value="Seksi KI">Seksi KI</option>
-          <option value="Jafung Pelelang">Jafung Pelelang</option>
-          <option value="-">-</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Role</label>
-        <select id="uRole"><option value="Pegawai">Pegawai</option><option value="Admin">Admin</option></select>
-      </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="btn-act btn-delete" onclick="closeModal('modalUser')">Batal</button>
-        <button class="btn-act btn-approve" onclick="saveUser()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Kendaraan -->
-  <div id="modalKendaraan" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:1rem;">Tambah / Edit Kendaraan</h3>
-      <input type="hidden" id="kenIndex">
-      <div class="form-group"><label>Nama & Plat</label><input type="text" id="kNama" placeholder="Toyota Rush - BE 1007 FZ"></div>
-      <div class="form-group">
-        <label>Kondisi</label>
-        <select id="kKondisi"><option value="Baik">Baik</option><option value="Perbaikan">Perbaikan</option></select>
-      </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="btn-act btn-delete" onclick="closeModal('modalKendaraan')">Batal</button>
-        <button class="btn-act btn-approve" onclick="saveKendaraan()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Log -->
-  <div id="modalLog" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-bottom:1rem;">Edit Log Aktivitas</h3>
-      <input type="hidden" id="logIndex">
-      <div class="form-group"><label>Pegawai / User</label><input type="text" id="lUser"></div>
-      <div class="form-group"><label>Aktivitas</label><input type="text" id="lAktivitas"></div>
-      <div class="form-group"><label>Rincian</label><input type="text" id="lRincian"></div>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="btn-act btn-delete" onclick="closeModal('modalLog')">Batal</button>
-        <button class="btn-act btn-approve" onclick="saveLog()">Simpan</button>
-      </div>
+      <p style="text-align:center; padding: 2rem; color: #888;">Sedang dalam tahap migrasi ke backend (Tahap Pengembangan).</p>
     </div>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      initData();
-      renderAll();
-    });
-
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       event.target.classList.add('active');
       document.getElementById('tab-' + tabName).classList.add('active');
     }
-
-    function initData() {
-      // Inisialisasi awal hanya jika localStorage benar-benar kosong (pertama kali dibuka)
-      if(localStorage.getItem('users') === null) {
-        const initialUsers = [
-          {nama: 'MOHAMAD RIYANTO', seksi: 'Seksi PKN', role: 'Pegawai'},
-          {nama: 'ANGGA APRIANTO', seksi: 'Seksi PKN', role: 'Pegawai'},
-          {nama: 'RUBIN HARYADI', seksi: 'Seksi PKN', role: 'Pegawai'},
-          {nama: 'WAHIDIN HARYA DITAMA', seksi: 'Seksi PKN', role: 'Pegawai'},
-          {nama: 'MARYANTO', seksi: 'Subbag Umum', role: 'Pegawai'},
-          {nama: 'HABIB BURAKHMAN', seksi: 'Subbag Umum', role: 'Pegawai'},
-          {nama: 'ADHYTIA PRATAMA ALBEN', seksi: 'Subbag Umum', role: 'Pegawai'}
-        ];
-        localStorage.setItem('users', JSON.stringify(initialUsers));
-      }
-
-      if(localStorage.getItem('kendaraanList') === null) {
-        localStorage.setItem('kendaraanList', JSON.stringify([
-          {nama: 'Toyota Rush - BE 1007 FZ', kondisi: 'Baik'},
-          {nama: 'Toyota Rush - BE 1068 FZ', kondisi: 'Baik'},
-          {nama: 'Toyota Kijang Innova - BE 1101 FZ', kondisi: 'Baik'}
-        ]));
-      }
-
-      if(localStorage.getItem('logs') === null) {
-        localStorage.setItem('logs', JSON.stringify([]));
-      }
-    }
-
-    function addLog(user, aktivitas, rincian) {
-      let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      let now = new Date().toLocaleString('id-ID');
-      logs.unshift({ waktu: now, user: user, aktivitas: aktivitas, rincian: rincian });
-      localStorage.setItem('logs', JSON.stringify(logs));
-    }
-
-    function renderAll() {
-      renderPeminjaman();
-      renderPengembalian();
-      renderKendaraan();
-      renderUsers();
-      renderLogs();
-    }
-
-    /* 1. CRUD Peminjaman */
-    function renderPeminjaman() {
-      let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-      const tbody = document.getElementById('tb-peminjaman');
-      tbody.innerHTML = '';
-      const keys = Object.keys(statusMobil);
-
-      if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">Belum ada pengajuan peminjaman.</td></tr>`;
-        return;
-      }
-
-      keys.forEach((key) => {
-        const item = statusMobil[key];
-        let statusBadge = `<span class="badge badge-pending">Menunggu</span>`;
-        if (item.statusApproval === 'Disetujui') statusBadge = `<span class="badge badge-approved">Disetujui</span>`;
-        if (item.statusApproval === 'Ditolak') statusBadge = `<span class="badge badge-rejected">Ditolak</span>`;
-
-        tbody.innerHTML += `
-          <tr>
-            <td data-label="Waktu Input"><small>${item.waktuInput || '-'}</small></td>
-            <td data-label="Pegawai"><strong>${item.peminjam || '-'}</strong></td>
-            <td data-label="Seksi">${item.seksi || '-'}</td>
-            <td data-label="Kendaraan">${key}</td>
-            <td data-label="Masa Pinjam">${item.tglPinjam || '-'} s.d. ${item.tglKembali || '-'}</td>
-            <td data-label="Keperluan">${item.keperluan || '-'}</td>
-            <td data-label="Status">${statusBadge}</td>
-            <td data-label="Aksi">
-              <div class="action-group">
-                <button class="btn-act btn-approve" onclick="updateStatus('${key}', 'Disetujui')">Setujui</button>
-                <button class="btn-act btn-reject" onclick="updateStatus('${key}', 'Ditolak')">Tolak</button>
-                <button class="btn-act btn-edit" onclick="updateStatus('${key}', 'Pending')">Edit (Reset)</button>
-                <button class="btn-act btn-delete" onclick="hapusPeminjaman('${key}')">Hapus</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function updateStatus(key, status) {
-      let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-      if (statusMobil[key]) {
-        statusMobil[key].statusApproval = status;
-        localStorage.setItem('statusMobil', JSON.stringify(statusMobil));
-        addLog('Admin', 'Update Status Peminjaman', `${key} diubah ke ${status}`);
-        renderAll();
-      }
-    }
-
-    function hapusPeminjaman(key) {
-      if (confirm(`Hapus pengajuan untuk ${key}?`)) {
-        let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-        delete statusMobil[key];
-        localStorage.setItem('statusMobil', JSON.stringify(statusMobil));
-        addLog('Admin', 'Hapus Peminjaman', `Pengajuan ${key} dihapus`);
-        renderAll();
-      }
-    }
-
-    /* 2. CRUD Pengembalian */
-    function renderPengembalian() {
-      let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-      const tbody = document.getElementById('tb-pengembalian');
-      tbody.innerHTML = '';
-      const keys = Object.keys(statusMobil).filter(k => statusMobil[k].statusApproval === 'Disetujui');
-
-      if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">Tidak ada kendaraan yang sedang dipinjam.</td></tr>`;
-        return;
-      }
-
-      keys.forEach((key) => {
-        const item = statusMobil[key];
-        const statusKembali = item.sudahKembali ? `<span class="badge badge-approved">Selesai Dikembalikan</span>` : `<span class="badge badge-pending">Belum Dikembalikan</span>`;
-
-        tbody.innerHTML += `
-          <tr>
-            <td data-label="Pegawai"><strong>${item.peminjam}</strong></td>
-            <td data-label="Kendaraan">${key}</td>
-            <td data-label="Batas Kembali">${item.tglKembali}</td>
-            <td data-label="Status Pengembalian">${statusKembali}</td>
-            <td data-label="Aksi">
-              <div class="action-group">
-                <button class="btn-act btn-approve" onclick="prosesPengembalian('${key}')">Konfirmasi Kembali</button>
-                <button class="btn-act btn-delete" onclick="hapusPeminjaman('${key}')">Hapus Data</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function prosesPengembalian(key) {
-      if(confirm(`Konfirmasi bahwa kendaraan ${key} sudah dikembalikan?`)) {
-        let statusMobil = JSON.parse(localStorage.getItem('statusMobil') || '{}');
-        delete statusMobil[key];
-        localStorage.setItem('statusMobil', JSON.stringify(statusMobil));
-        addLog('Admin', 'Pengembalian Kendaraan', `Kendaraan ${key} telah resmi dikembalikan`);
-        renderAll();
-      }
-    }
-
-    /* 3. CRUD Kendaraan */
-    function renderKendaraan() {
-      let list = JSON.parse(localStorage.getItem('kendaraanList') || '[]');
-      const tbody = document.getElementById('tb-kendaraan');
-      tbody.innerHTML = '';
-      list.forEach((item, idx) => {
-        tbody.innerHTML += `
-          <tr>
-            <td data-label="Nama & Plat"><strong>${item.nama}</strong></td>
-            <td data-label="Kondisi">${item.kondisi}</td>
-            <td data-label="Aksi">
-              <div class="action-group">
-                <button class="btn-act btn-edit" onclick="editKendaraan(${idx})">Edit</button>
-                <button class="btn-act btn-delete" onclick="deleteKendaraan(${idx})">Hapus</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function openModalKendaraan() { document.getElementById('kenIndex').value = ''; document.getElementById('kNama').value = ''; document.getElementById('modalKendaraan').style.display = 'flex'; }
-    function editKendaraan(idx) {
-      let list = JSON.parse(localStorage.getItem('kendaraanList'));
-      document.getElementById('kenIndex').value = idx;
-      document.getElementById('kNama').value = list[idx].nama;
-      document.getElementById('kKondisi').value = list[idx].kondisi;
-      document.getElementById('modalKendaraan').style.display = 'flex';
-    }
-    function saveKendaraan() {
-      let list = JSON.parse(localStorage.getItem('kendaraanList') || '[]');
-      let idx = document.getElementById('kenIndex').value;
-      let data = { nama: document.getElementById('kNama').value, kondisi: document.getElementById('kKondisi').value };
-      if (idx === '') { list.push(data); addLog('Admin', 'Tambah Kendaraan', data.nama); } 
-      else { list[idx] = data; addLog('Admin', 'Edit Kendaraan', data.nama); }
-      localStorage.setItem('kendaraanList', JSON.stringify(list));
-      closeModal('modalKendaraan');
-      renderAll();
-    }
-    function deleteKendaraan(idx) {
-      if(confirm('Hapus kendaraan ini?')) {
-        let list = JSON.parse(localStorage.getItem('kendaraanList'));
-        addLog('Admin', 'Hapus Kendaraan', list[idx].nama);
-        list.splice(idx, 1);
-        localStorage.setItem('kendaraanList', JSON.stringify(list));
-        renderAll();
-      }
-    }
-
-    /* 4. CRUD User */
-    function renderUsers() {
-      let list = JSON.parse(localStorage.getItem('users') || '[]');
-      const tbody = document.getElementById('tb-user');
-      tbody.innerHTML = '';
-
-      if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">Tidak ada data user / pegawai.</td></tr>`;
-        return;
-      }
-
-      list.forEach((item, idx) => {
-        tbody.innerHTML += `
-          <tr>
-            <td data-label="Nama Pegawai"><strong>${item.nama}</strong></td>
-            <td data-label="Seksi">${item.seksi}</td>
-            <td data-label="Role">${item.role}</td>
-            <td data-label="Aksi">
-              <div class="action-group">
-                <button class="btn-act btn-edit" onclick="editUser(${idx})">Edit</button>
-                <button class="btn-act btn-delete" onclick="deleteUser(${idx})">Hapus</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function openModalUser() { 
-      document.getElementById('userIndex').value = ''; 
-      document.getElementById('uNama').value = ''; 
-      document.getElementById('uSeksi').value = 'Seksi PKN'; 
-      document.getElementById('modalUser').style.display = 'flex'; 
-    }
-
-    function editUser(idx) {
-      let list = JSON.parse(localStorage.getItem('users'));
-      document.getElementById('userIndex').value = idx;
-      document.getElementById('uNama').value = list[idx].nama;
-      document.getElementById('uSeksi').value = list[idx].seksi;
-      document.getElementById('uRole').value = list[idx].role;
-      document.getElementById('modalUser').style.display = 'flex';
-    }
-
-    function saveUser() {
-      let list = JSON.parse(localStorage.getItem('users') || '[]');
-      let idx = document.getElementById('userIndex').value;
-      let data = { nama: document.getElementById('uNama').value, seksi: document.getElementById('uSeksi').value, role: document.getElementById('uRole').value };
-      if (idx === '') { 
-        list.push(data); 
-        addLog('Admin', 'Tambah User', data.nama); 
-      } else { 
-        list[idx] = data; 
-        addLog('Admin', 'Edit User', data.nama); 
-      }
-      localStorage.setItem('users', JSON.stringify(list));
-      closeModal('modalUser');
-      renderAll();
-    }
-
-    function deleteUser(idx) {
-      let list = JSON.parse(localStorage.getItem('users') || '[]');
-      let namaUser = list[idx].nama;
-      if(confirm(`Apakah Anda yakin ingin menghapus user "${namaUser}"?`)) {
-        addLog('Admin', 'Hapus User', namaUser);
-        list.splice(idx, 1);
-        localStorage.setItem('users', JSON.stringify(list));
-        renderAll();
-      }
-    }
-
-    /* Fitur Baru: Hapus Semua User */
-    function clearAllUsers() {
-      if(confirm('Apakah Anda yakin ingin menghapus SELURUH data user & pegawai?')) {
-        localStorage.setItem('users', JSON.stringify([]));
-        addLog('Admin', 'Hapus Semua User', 'Seluruh data user telah dihapus');
-        renderAll();
-      }
-    }
-
-    /* 5. CRUD Log Aktivitas */
-    function renderLogs() {
-      let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      const tbody = document.getElementById('tb-log');
-      tbody.innerHTML = '';
-      if(logs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">Belum ada log aktivitas.</td></tr>`;
-        return;
-      }
-      logs.forEach((item, idx) => {
-        tbody.innerHTML += `
-          <tr>
-            <td data-label="Waktu"><small>${item.waktu}</small></td>
-            <td data-label="Pegawai/User"><strong>${item.user}</strong></td>
-            <td data-label="Aktivitas"><span class="badge badge-pending">${item.aktivitas}</span></td>
-            <td data-label="Rincian">${item.rincian || '-'}</td>
-            <td data-label="Aksi">
-              <div class="action-group">
-                <button class="btn-act btn-edit" onclick="editLog(${idx})">Edit</button>
-                <button class="btn-act btn-delete" onclick="deleteLog(${idx})">Hapus</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function editLog(idx) {
-      let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      document.getElementById('logIndex').value = idx;
-      document.getElementById('lUser').value = logs[idx].user;
-      document.getElementById('lAktivitas').value = logs[idx].aktivitas;
-      document.getElementById('lRincian').value = logs[idx].rincian || '';
-      document.getElementById('modalLog').style.display = 'flex';
-    }
-
-    function saveLog() {
-      let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-      let idx = document.getElementById('logIndex').value;
-      if (idx !== '') {
-        logs[idx].user = document.getElementById('lUser').value;
-        logs[idx].aktivitas = document.getElementById('lAktivitas').value;
-        logs[idx].rincian = document.getElementById('lRincian').value;
-        localStorage.setItem('logs', JSON.stringify(logs));
-        closeModal('modalLog');
-        renderLogs();
-      }
-    }
-
-    function deleteLog(idx) {
-      if(confirm('Hapus log aktivitas ini?')) {
-        let logs = JSON.parse(localStorage.getItem('logs') || '[]');
-        logs.splice(idx, 1);
-        localStorage.setItem('logs', JSON.stringify(logs));
-        renderLogs();
-      }
-    }
-
-    function clearAllLogs() {
-      if(confirm('Apakah Anda yakin ingin menghapus SELURUH log aktivitas?')) {
-        localStorage.setItem('logs', JSON.stringify([]));
-        renderLogs();
-      }
-    }
-
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
   </script>
 
 </body>

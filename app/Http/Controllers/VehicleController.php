@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Vehicle;
 use App\Models\Loan;
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class VehicleController extends Controller
 {
     // Menampilkan halaman utama
     public function index()
     {
-        // Mengambil data dari database, jika kosong buatkan data Toyota Rush
         $vehicles = Vehicle::all();
 
         if ($vehicles->isEmpty()) {
@@ -55,22 +56,50 @@ class VehicleController extends Controller
     public function store(Request $request, $id)
     {
         $request->validate([
-            'nama_peminjam' => 'required',
-            'masa_pinjam'   => 'required',
-            'keperluan'     => 'required',
+            'nama_pegawai' => 'required',
+            'nip'          => 'required',
+            'seksi'        => 'required',
+            'keperluan'    => 'required',
+            'tgl_pinjam'   => 'required|date',
+            'tgl_kembali'  => 'required|date|after_or_equal:tgl_pinjam',
+            'cf-turnstile-response' => 'required',
         ]);
 
+        // 1. Verifikasi Cloudflare Turnstile
+        $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret' => '1x0000000000000000000000000000000AA', // Dummy test secret key
+            'response' => $request->input('cf-turnstile-response'),
+            'remoteip' => $request->ip(),
+        ]);
+
+        if (!$turnstileResponse->json('success')) {
+            return back()->with('error', 'Verifikasi Keamanan gagal. Silakan coba lagi.')->withInput();
+        }
+
+        // 2. Verifikasi NIP Pegawai
+        $employee = Employee::where('nama_pegawai', $request->nama_pegawai)
+                            ->where('nip', $request->nip)
+                            ->first();
+                            
+        if (!$employee) {
+            return back()->with('error', 'NIP tidak cocok dengan nama pegawai!')->withInput();
+        }
+
+        // 3. Simpan Data Peminjaman
         $vehicle = Vehicle::find($id);
 
         if ($vehicle) {
             $vehicle->update(['status' => 'dipinjam']);
         }
 
+        $masaPinjam = $request->tgl_pinjam . ' s.d. ' . $request->tgl_kembali;
+
         Loan::create([
             'vehicle_id'    => $id,
-            'nama_peminjam' => $request->nama_peminjam,
-            'masa_pinjam'   => $request->masa_pinjam,
-            'keperluan'     => $request->keperluan,
+            'nip'           => $request->nip,
+            'nama_peminjam' => $request->nama_pegawai,
+            'masa_pinjam'   => $masaPinjam,
+            'keperluan'     => $request->keperluan . ' (Seksi: ' . $request->seksi . ')',
         ]);
 
         return redirect('/')->with('success', 'Berhasil mengajukan peminjaman!');
