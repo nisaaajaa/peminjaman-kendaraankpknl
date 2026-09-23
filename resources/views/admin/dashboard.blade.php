@@ -280,7 +280,9 @@
     <div id="tab-user" class="tab-content card-table">
       <div class="card-header">
         <h2>Kelola Data User & Pegawai</h2>
-        <div>
+        <div class="action-group" style="justify-content: flex-end;">
+          <a href="{{ route('admin.employees.export') }}" class="btn-act" style="background-color: var(--success); text-decoration:none;">📤 Ekspor CSV</a>
+          <button class="btn-act" onclick="openModal('modalImportCsv')" style="background-color: var(--info);">📥 Impor CSV</button>
           <button class="btn-act btn-add" onclick="openModal('modalAddEmployee')">+ Tambah Pegawai</button>
         </div>
       </div>
@@ -443,6 +445,28 @@
           <input type="text" id="edit_nama" name="nama_pegawai" required>
         </div>
         <button type="submit" class="btn-submit">Update Data</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Impor CSV -->
+  <div id="modalImportCsv" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Impor Data Pegawai (CSV)</h2>
+        <span class="close" onclick="closeModal('modalImportCsv')">&times;</span>
+      </div>
+      <form action="{{ route('admin.employees.import') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="form-group">
+          <label>Pilih File (.csv)</label>
+          <input type="file" name="csv_file" accept=".csv" required style="padding: 0.5rem; border: none;">
+        </div>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem; line-height: 1.4;">
+          <strong>Panduan:</strong> Format file harus CSV. Baris pertama (Header) akan diabaikan. Pastikan NIP berada di kolom pertama (A), dan Nama Pegawai di kolom kedua (B).<br><br>
+          <em>*Jika NIP sudah ada di database, sistem akan memperbarui nama pegawai tersebut.</em>
+        </p>
+        <button type="submit" class="btn-submit">Upload & Proses Data</button>
       </form>
     </div>
   </div>

@@ -61,6 +61,69 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Pegawai berhasil dihapus.');
     }
 
+    public function exportEmployeesCsv()
+    {
+        $employees = \App\Models\Employee::all();
+        $csvFileName = 'data_pegawai_' . date('Y-m-d') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        return response()->stream(
+            function () use ($employees) {
+                $handle = fopen('php://output', 'w');
+                // Header CSV
+                fputcsv($handle, ['NIP', 'Nama Pegawai']);
+                foreach ($employees as $employee) {
+                    fputcsv($handle, [$employee->nip, $employee->nama_pegawai]);
+                }
+                fclose($handle);
+            },
+            200,
+            $headers
+        );
+    }
+
+    public function importEmployeesCsv(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
+        ]);
+
+        $file = $request->file('csv_file');
+        $handle = fopen($file->path(), 'r');
+
+        $header = true;
+        $count = 0;
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            if ($header) {
+                $header = false;
+                continue; // Skip baris pertama (header)
+            }
+
+            if (count($row) >= 2) {
+                $nip = trim($row[0]);
+                $nama = trim($row[1]);
+
+                if (!empty($nip) && !empty($nama)) {
+                    \App\Models\Employee::updateOrCreate(
+                        ['nip' => $nip],
+                        ['nama_pegawai' => strtoupper($nama)]
+                    );
+                    $count++;
+                }
+            }
+        }
+        fclose($handle);
+
+        return redirect()->back()->with('success', "Berhasil memproses $count data pegawai dari CSV.");
+    }
+
     // --- CRUD KENDARAAN ---
     public function storeVehicle(Request $request)
     {

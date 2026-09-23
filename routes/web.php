@@ -30,6 +30,8 @@ Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.d
 Route::post('/admin/employees', [AdminController::class, 'storeEmployee'])->name('admin.employees.store');
 Route::put('/admin/employees/{id}', [AdminController::class, 'updateEmployee'])->name('admin.employees.update');
 Route::delete('/admin/employees/{id}', [AdminController::class, 'deleteEmployee'])->name('admin.employees.delete');
+Route::get('/admin/employees/export', [AdminController::class, 'exportEmployeesCsv'])->name('admin.employees.export');
+Route::post('/admin/employees/import', [AdminController::class, 'importEmployeesCsv'])->name('admin.employees.import');
 
 // Rute CRUD Kendaraan
 Route::post('/admin/vehicles', [AdminController::class, 'storeVehicle'])->name('admin.vehicles.store');
