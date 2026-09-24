@@ -111,6 +111,7 @@
     .alert-success { background-color: #D1FAE5; color: #059669; }
     .alert-danger { background-color: #FEE2E2; color: #DC2626; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -123,18 +124,7 @@
   </header>
 
   <div class="container">
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if($errors->any())
-      <div class="alert alert-danger">
-        <ul style="margin-left: 1.5rem;">
-          @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
+    <!-- Pesan Alert lama diganti dengan Toast SweetAlert di script bawah -->
 
     <!-- Navigasi Tab -->
     <div class="nav-tabs">
@@ -177,11 +167,11 @@
               <div class="action-group">
                 <form action="{{ route('admin.loans.approve', $loan->id) }}" method="POST" style="display:inline;">
                   @csrf
-                  <button type="submit" class="btn-act btn-approve" onclick="return confirm('Setujui peminjaman ini?')">Setujui</button>
+                  <button type="button" class="btn-act btn-approve" onclick="confirmAction(this.form, 'Setujui peminjaman ini?')">Setujui</button>
                 </form>
                 <form action="{{ route('admin.loans.reject', $loan->id) }}" method="POST" style="display:inline;">
                   @csrf
-                  <button type="submit" class="btn-act btn-reject" onclick="return confirm('Tolak peminjaman ini?')">Tolak</button>
+                  <button type="button" class="btn-act btn-reject" onclick="confirmAction(this.form, 'Tolak peminjaman ini?')">Tolak</button>
                 </form>
               </div>
             </td>
@@ -230,10 +220,10 @@
             <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-edit" onclick="openEditVehicleModal({{ $v->id }}, '{{ addslashes($v->nama_kendaraan) }}', '{{ addslashes($v->plat_nomor) }}')">Edit</button>
-                <form action="{{ route('admin.vehicles.delete', $v->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus kendaraan ini?');" style="display:inline;">
+                <form action="{{ route('admin.vehicles.delete', $v->id) }}" method="POST" style="display:inline;">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn-act btn-delete">Hapus</button>
+                  <button type="button" class="btn-act btn-delete" onclick="confirmAction(this.form, 'Yakin ingin menghapus kendaraan ini?')">Hapus</button>
                 </form>
               </div>
             </td>
@@ -270,9 +260,9 @@
             <td data-label="Masa Pinjam">{{ $loan->masa_pinjam }}</td>
             <td data-label="Status"><span class="badge badge-approved">Sedang Dipinjam</span></td>
             <td data-label="Aksi">
-              <form action="{{ route('admin.loans.return', $loan->id) }}" method="POST" onsubmit="return confirm('Konfirmasi kendaraan telah dikembalikan dengan aman?');">
+              <form action="{{ route('admin.loans.return', $loan->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn-act btn-info" style="background-color: var(--info); color:white;">Selesaikan / Dikembalikan</button>
+                <button type="button" class="btn-act btn-info" style="background-color: var(--info); color:white;" onclick="confirmAction(this.form, 'Konfirmasi kendaraan telah dikembalikan dengan aman?')">Selesaikan / Dikembalikan</button>
               </form>
             </td>
           </tr>
@@ -313,10 +303,10 @@
             <td data-label="Aksi">
               <div class="action-group">
                 <button class="btn-act btn-edit" onclick="openEditEmployeeModal({{ $emp->id }}, '{{ $emp->nip }}', '{{ addslashes($emp->nama_pegawai) }}')">Edit</button>
-                <form action="{{ route('admin.employees.delete', $emp->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pegawai ini?');" style="display:inline;">
+                <form action="{{ route('admin.employees.delete', $emp->id) }}" method="POST" style="display:inline;">
                   @csrf
                   @method('DELETE')
-                  <button type="submit" class="btn-act btn-delete">Hapus</button>
+                  <button type="button" class="btn-act btn-delete" onclick="confirmAction(this.form, 'Yakin ingin menghapus pegawai ini?')">Hapus</button>
                 </form>
               </div>
             </td>
@@ -487,20 +477,28 @@
   </div>
 
   <script>
+    // Tab persistency logic
     function switchTab(tabName) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      event.target.classList.add('active');
+      
+      const targetBtn = document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+      
       document.getElementById('tab-' + tabName).classList.add('active');
+      localStorage.setItem('activeAdminTab', tabName);
     }
 
-    function openModal(id) {
-      document.getElementById(id).style.display = 'block';
-    }
+    document.addEventListener("DOMContentLoaded", function() {
+      const savedTab = localStorage.getItem('activeAdminTab');
+      if (savedTab) {
+        switchTab(savedTab);
+      }
+    });
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+    // Modal functions
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function openEditEmployeeModal(id, nip, nama) {
       document.getElementById('formEditEmployee').action = '/admin/employees/' + id;
@@ -514,6 +512,45 @@
       document.getElementById('edit_v_nama').value = nama;
       document.getElementById('edit_v_plat').value = plat;
       openModal('modalEditVehicle');
+    }
+
+    // SweetAlert2 Configurations
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
+    // Handle session flashes
+    @if(session('success'))
+      Toast.fire({ icon: 'success', title: "{{ session('success') }}" });
+    @endif
+    
+    @if($errors->any())
+      Toast.fire({ icon: 'error', title: "Terjadi kesalahan. Periksa form anda!" });
+    @endif
+
+    function confirmAction(form, message) {
+      Swal.fire({
+        title: 'Konfirmasi',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'var(--kemenkeu-main)',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Lanjutkan!',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
     }
   </script>
 

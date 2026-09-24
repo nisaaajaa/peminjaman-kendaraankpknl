@@ -83,21 +83,7 @@
       <p>KPKNL METRO - KEMENTERIAN KEUANGAN RI</p>
     </div>
 
-    <!-- Menampilkan Error Validasi Laravel -->
-    @if ($errors->any())
-    <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin: 1rem; border-radius: 8px;">
-      <ul style="margin-left: 1rem;">
-        @foreach ($errors->all() as $error)
-          <li>{{ $error }}</li>
-        @endforeach
-      </ul>
-    </div>
-    @endif
-    @if(session('error'))
-    <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin: 1rem; border-radius: 8px;">
-      {{ session('error') }}
-    </div>
-    @endif
+    <!-- Errors handled by SweetAlert2 at the bottom -->
 
     <form id="loanForm" class="form-body" action="{{ route('pinjam.store', $vehicle->id) }}" method="POST">
       @csrf
@@ -163,5 +149,28 @@
     </form>
   </div>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
+    @if(session('error'))
+      Toast.fire({ icon: 'error', title: "{{ session('error') }}" });
+    @endif
+    
+    @if($errors->any())
+      Toast.fire({ icon: 'error', title: "Terdapat kesalahan. Periksa form Anda!" });
+    @endif
+  </script>
 </body>
 </html>

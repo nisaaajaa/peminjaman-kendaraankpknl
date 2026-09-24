@@ -21,7 +21,7 @@ Route::get('/form', fn() => redirect('/'))->name('form');
 // Rute Login Admin
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rute Admin yang dilindungi Auth
 Route::middleware('auth')->prefix('admin')->group(function () {

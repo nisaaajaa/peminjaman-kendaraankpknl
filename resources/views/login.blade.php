@@ -79,13 +79,7 @@
     </div>
 
     <div class="login-body">
-      @if($errors->any())
-        <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; font-size: 0.85rem; border: 1px solid #FCA5A5;">
-          @foreach($errors->all() as $error)
-            {{ $error }}<br>
-          @endforeach
-        </div>
-      @endif
+      <!-- Errors handled by SweetAlert2 at the bottom -->
 
       <form action="/login" method="POST">
         @csrf
@@ -106,5 +100,24 @@
     </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
+    @if($errors->any())
+      Toast.fire({ icon: 'error', title: "{{ $errors->first() }}" });
+    @endif
+  </script>
 </body>
 </html>
