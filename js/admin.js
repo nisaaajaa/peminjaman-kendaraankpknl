@@ -356,7 +356,7 @@ document.getElementById('btnExportCsv').addEventListener('click', async () => {
     let csv = 'NIP,Nama Pegawai\n';
     snap.forEach(doc => {
       const d = doc.data();
-      csv += \u0022\u0022,\u0022\u0022\n;
+      csv += '"' + d.nip + '","' + d.nama_pegawai + '"\n';
     });
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
