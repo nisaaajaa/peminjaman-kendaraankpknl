@@ -26,7 +26,16 @@
     .hero-scroll-btn {
       background: var(--kemenkeu-gold); color: var(--kemenkeu-main);
       padding: 0.8rem 2rem; border-radius: 30px; font-weight: bold; text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s; border: none; cursor: pointer; font-size: 1rem;
     }
+    .hero-scroll-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(242, 201, 76, 0.3); }
+    .hero-actions {
+      display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 1rem;
+    }
+    .btn-outline {
+      background: transparent; border: 2px solid rgba(255,255,255,0.3); color: white;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
     .content-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
     .section-title { text-align: center; margin-bottom: 3rem; }
     .section-title h2 { font-size: 2rem; color: var(--kemenkeu-main); }
@@ -79,7 +88,11 @@
     <div class="hero-badge">Direktorat Jenderal Kekayaan Negara</div>
     <h1>KPKNL METRO</h1>
     <p>Kantor Pelayanan Kekayaan Negara dan Lelang (KPKNL) Metro merupakan unit vertikal di bawah naungan <strong>Direktorat Jenderal Kekayaan Negara (DJKN)</strong>.</p>
-    <a href="#peminjaman" class="hero-scroll-btn" id="btnRevealPeminjaman">Peminjaman Kendaraan</a>
+    <div class="hero-actions">
+      <a href="#peminjaman" class="hero-scroll-btn" id="btnRevealPeminjaman">🚗 Peminjaman Kendaraan</a>
+      <button class="hero-scroll-btn btn-outline" onclick="showComingSoon('Permintaan ATK')">📎 Permintaan ATK</button>
+      <button class="hero-scroll-btn btn-outline" onclick="showComingSoon('Ruang Rapat/Aula')">🏢 Ruang Rapat / Aula</button>
+    </div>
   </section>
 
   <div class="content-container" id="peminjaman" style="display: none;">
@@ -118,6 +131,17 @@
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
     });
+
+    // Alert untuk fitur yang sedang dikembangkan
+    window.showComingSoon = function(modulName) {
+      Swal.fire({
+        title: 'Segera Hadir!',
+        text: `Modul ${modulName} saat ini sedang dalam tahap pengembangan.`,
+        icon: 'info',
+        confirmButtonColor: 'var(--kemenkeu-main)',
+        confirmButtonText: 'Tutup'
+      });
+    };
   </script>
 </body>
 </html>
