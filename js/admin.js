@@ -182,6 +182,7 @@ async function loadVehicles() {
     if (snap.empty) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">Tidak ada kendaraan di Database.</td></tr>'; return; }
     
     let html = '';
+    let i = 1;
     for (const docSnap of snap.docs) {
       const v = docSnap.data();
       const id = docSnap.id;
@@ -197,7 +198,7 @@ async function loadVehicles() {
       
       html += `
         <tr>
-          <td data-label="ID">#${id.substring(0,5)}...</td>
+          <td data-label="No">${i++}</td>
           <td data-label="Nama & Plat">${imgHtml} <strong>${v.nama_kendaraan} (${v.plat_nomor})</strong></td>
           <td data-label="Status Kendaraan">${statusBadge}</td>
           <td data-label="Aksi">
@@ -277,13 +278,14 @@ async function loadEmployees() {
     if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Tidak ada data pegawai di Database.</td></tr>'; return; }
     
     let html = '';
+    let i = 1;
     snap.forEach(docSnap => {
       const e = docSnap.data();
       const id = docSnap.id;
       const date = e.created_at ? formatDateID(e.created_at) : '-';
       html += `
         <tr>
-          <td data-label="ID">#${id.substring(0,5)}...</td>
+          <td data-label="No">${i++}</td>
           <td data-label="NIP"><strong>${e.nip}</strong></td>
           <td data-label="Nama Pegawai">${e.nama_pegawai}</td>
           <td data-label="Terdaftar Sejak">${date}</td>
