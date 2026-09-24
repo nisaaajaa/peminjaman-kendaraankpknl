@@ -152,7 +152,7 @@
 
       <!-- Cloudflare Turnstile -->
       <div class="form-group" style="display: flex; justify-content: center; margin-top: 1rem;">
-        <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
+        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
       </div>
 
       <!-- Tombol Aksi -->
