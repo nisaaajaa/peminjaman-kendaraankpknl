@@ -348,3 +348,75 @@ async function loadLogs() {
     tbody.innerHTML = html;
   } catch (e) { tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center;">Gagal memuat data log.</td></tr>'; }
 }
+
+// --- F. IMPOR & EKSPOR CSV ---
+document.getElementById('btnExportCsv').addEventListener('click', async () => {
+  try {
+    const snap = await getDocs(collection(db, 'employees'));
+    let csv = 'NIP,Nama Pegawai\n';
+    snap.forEach(doc => {
+      const d = doc.data();
+      csv += \u0022\u0022,\u0022\u0022\n;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'Data_Pegawai_KPKNL.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) { showToast('error', 'Gagal mengekspor data'); }
+});
+
+document.getElementById('btnImportCsv').addEventListener('click', () => {
+  document.getElementById('formImportCsv').reset();
+  openModal('modalImportCsv');
+});
+
+document.getElementById('formImportCsv').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSubmitImportCsv');
+  btn.disabled = true; btn.innerText = 'Memproses...';
+  const file = document.getElementById('import_csv_file').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(event) {
+    const text = event.target.result;
+    const rows = text.split('\n');
+    let successCount = 0;
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].trim();
+      if (!row) continue;
+      // Parse CSV line (handle quotes)
+      let cols = [];
+      let inQuotes = false;
+      let val = '';
+      for(let j=0; j<row.length; j++) {
+        const c = row[j];
+        if(c === '\u0022') { inQuotes = !inQuotes; }
+        else if(c === ',' && !inQuotes) { cols.push(val.trim()); val=''; }
+        else { val += c; }
+      }
+      cols.push(val.trim());
+      if (cols.length >= 2) {
+        const nip = cols[0]; const nama = cols[1];
+        // Check exist
+        const q = query(collection(db, 'employees'), where('nip', '==', nip));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+           await updateDoc(doc(db, 'employees', snap.docs[0].id), { nama_pegawai: nama });
+        } else {
+           await addDoc(collection(db, 'employees'), { nip: nip, nama_pegawai: nama, created_at: Timestamp.now() });
+        }
+        successCount++;
+      }
+    }
+    showToast('success', successCount + ' data berhasil diimpor!');
+    closeModal('modalImportCsv');
+    initDashboard();
+    btn.disabled = false; btn.innerText = 'Upload & Proses Data';
+  };
+  reader.readAsText(file);
+});

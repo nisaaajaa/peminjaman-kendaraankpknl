@@ -124,8 +124,8 @@
       <div class="card-header">
         <h2>Kelola Data User & Pegawai</h2>
         <div class="action-group" style="justify-content: flex-end;">
-          <!-- <button class="btn-act" id="btnExportCsv" style="background-color: var(--success);">📤 Ekspor CSV</button> -->
-          <!-- <button class="btn-act" id="btnImportCsv" style="background-color: var(--info);">📥 Impor CSV</button> -->
+          <button class="btn-act" id="btnExportCsv" style="background-color: var(--success);">📤 Ekspor CSV</button>
+          <button class="btn-act" id="btnImportCsv" style="background-color: var(--info);">📥 Impor CSV</button>
           <button class="btn-act btn-add" id="btnOpenAddEmployee">+ Tambah Pegawai</button>
         </div>
       </div>
@@ -162,10 +162,10 @@
     <div class="modal-content">
       <div class="modal-header"><h2>Tambah Kendaraan</h2><span class="close" data-dismiss="modalAddVehicle">&times;</span></div>
       <form id="formAddVehicle">
-        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="add_v_nama" required></div>
-        <div class="form-group"><label>Plat Nomor</label><input type="text" id="add_v_plat" required></div>
-        <div class="form-group"><label>Foto Kendaraan</label><input type="file" id="add_v_foto" accept="image/*"></div>
-        <button type="submit" class="btn-submit" id="btnSubmitAddVehicle">Simpan Kendaraan</button>
+        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="add_v_nama" class="form-control" required></div>
+        <div class="form-group"><label>Plat Nomor</label><input type="text" id="add_v_plat" class="form-control" required></div>
+        <div class="form-group"><label>Foto Kendaraan</label><input type="file" id="add_v_foto" class="form-control" accept="image/*"></div>
+        <button type="submit" class="btn btn-submit" id="btnSubmitAddVehicle">Simpan Kendaraan</button>
       </form>
     </div>
   </div>
@@ -175,10 +175,10 @@
       <div class="modal-header"><h2>Edit Kendaraan</h2><span class="close" data-dismiss="modalEditVehicle">&times;</span></div>
       <form id="formEditVehicle">
         <input type="hidden" id="edit_v_id">
-        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="edit_v_nama" required></div>
-        <div class="form-group"><label>Plat Nomor</label><input type="text" id="edit_v_plat" required></div>
-        <div class="form-group"><label>Ubah Foto</label><input type="file" id="edit_v_foto" accept="image/*"></div>
-        <button type="submit" class="btn-submit" id="btnSubmitEditVehicle">Update Kendaraan</button>
+        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="edit_v_nama" class="form-control" required></div>
+        <div class="form-group"><label>Plat Nomor</label><input type="text" id="edit_v_plat" class="form-control" required></div>
+        <div class="form-group"><label>Ubah Foto</label><input type="file" id="edit_v_foto" class="form-control" accept="image/*"></div>
+        <button type="submit" class="btn btn-submit" id="btnSubmitEditVehicle">Update Kendaraan</button>
       </form>
     </div>
   </div>
@@ -187,9 +187,9 @@
     <div class="modal-content">
       <div class="modal-header"><h2>Tambah Pegawai</h2><span class="close" data-dismiss="modalAddEmployee">&times;</span></div>
       <form id="formAddEmployee">
-        <div class="form-group"><label>NIP</label><input type="text" id="add_e_nip" required></div>
-        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="add_e_nama" required></div>
-        <button type="submit" class="btn-submit" id="btnSubmitAddEmployee">Simpan Data</button>
+        <div class="form-group"><label>NIP</label><input type="text" id="add_e_nip" class="form-control" required></div>
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="add_e_nama" class="form-control" required></div>
+        <button type="submit" class="btn btn-submit" id="btnSubmitAddEmployee">Simpan Data</button>
       </form>
     </div>
   </div>
@@ -199,9 +199,23 @@
       <div class="modal-header"><h2>Edit Pegawai</h2><span class="close" data-dismiss="modalEditEmployee">&times;</span></div>
       <form id="formEditEmployee">
         <input type="hidden" id="edit_e_id">
-        <div class="form-group"><label>NIP</label><input type="text" id="edit_e_nip" required></div>
-        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="edit_e_nama" required></div>
-        <button type="submit" class="btn-submit" id="btnSubmitEditEmployee">Update Data</button>
+        <div class="form-group"><label>NIP</label><input type="text" id="edit_e_nip" class="form-control" required></div>
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="edit_e_nama" class="form-control" required></div>
+        <button type="submit" class="btn btn-submit" id="btnSubmitEditEmployee">Update Data</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalImportCsv" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Impor Data Pegawai (CSV)</h2><span class="close" data-dismiss="modalImportCsv">&times;</span></div>
+      <form id="formImportCsv">
+        <div class="form-group"><label>Pilih File (.csv)</label><input type="file" id="import_csv_file" class="form-control" accept=".csv" required></div>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem; line-height: 1.4;">
+          <strong>Panduan:</strong> Format file harus CSV. Baris pertama (Header) akan diabaikan. Pastikan NIP berada di kolom pertama, dan Nama Pegawai di kolom kedua.<br><br>
+          <em>*Jika NIP sudah ada, sistem akan otomatis memperbarui nama pegawai tersebut.</em>
+        </p>
+        <button type="submit" class="btn btn-submit" id="btnSubmitImportCsv">Upload & Proses Data</button>
       </form>
     </div>
   </div>
