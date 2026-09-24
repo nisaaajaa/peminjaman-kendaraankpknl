@@ -50,26 +50,63 @@
       td { border: none; border-bottom: 1px solid #F1F5F9; position: relative; padding: 0.8rem 0 0.8rem 45%; text-align: right; min-height: 2.5rem; }
       td::before { content: attr(data-label); position: absolute; left: 0; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--kemenkeu-main); font-size: 0.85rem; top: 0.8rem; }
     }
+  <style>
+    /* Layout Sidebar Admin */
+    body { margin: 0; overflow-x: hidden; }
+    header { height: 65px; }
+    .admin-layout { display: flex; height: calc(100vh - 65px); }
+    .sidebar {
+      width: 260px; background-color: var(--kemenkeu-dark); color: white;
+      padding: 1.5rem 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 10;
+    }
+    .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+    .sidebar-link {
+      display: block; padding: 1rem 1.5rem; color: #E2E8F0; text-decoration: none;
+      font-weight: 600; border-left: 4px solid transparent; transition: all 0.2s;
+    }
+    .sidebar-link:hover { background-color: rgba(255,255,255,0.05); color: white; }
+    .sidebar-link.active {
+      background-color: rgba(255,255,255,0.1); border-left-color: var(--kemenkeu-gold); color: var(--kemenkeu-gold);
+    }
+    .main-content {
+      flex: 1; padding: 2rem; overflow-y: auto; background-color: var(--bg-gray);
+    }
+    .module-section { display: none; }
+    .module-section.active { display: block; }
   </style>
 </head>
 <body style="display: none;"> <!-- Disembunyikan awalnya untuk auth guard -->
 
   <header>
     <div class="brand-text">
-      <h2>PANEL ADMIN - SISTEM PEMINJAMAN KENDARAAN</h2>
+      <h2>PANEL ADMIN - SISTEM TERPADU</h2>
       <p>KPKNL METRO</p>
     </div>
     <button id="btnLogout" class="btn-logout">Logout</button>
   </header>
 
-  <div class="container">
-    <div class="nav-tabs">
-      <button class="tab-btn active" data-tab="peminjaman">📋 Peminjaman</button>
-      <button class="tab-btn" data-tab="kendaraan">🚗 Kendaraan</button>
-      <button class="tab-btn" data-tab="pengembalian">🔄 Pengembalian</button>
-      <button class="tab-btn" data-tab="user">👤 User</button>
-      <button class="tab-btn" data-tab="log">🕒 Log Aktivitas</button>
-    </div>
+  <div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="#" class="sidebar-link active" data-module="kendaraan">🚗 Peminjaman Kendaraan</a></li>
+        <li><a href="#" class="sidebar-link" data-module="ruang">🏢 Ruang Rapat / Aula</a></li>
+        <li><a href="#" class="sidebar-link" data-module="atk">📎 Permintaan ATK</a></li>
+        <li><a href="#" class="sidebar-link" data-module="user">👤 User</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- MODUL KENDARAAN -->
+      <div id="module-kendaraan" class="module-section active">
+        <div class="nav-tabs">
+          <button class="tab-btn active" data-tab="peminjaman">📋 Peminjaman</button>
+          <button class="tab-btn" data-tab="kendaraan">🚗 Kendaraan</button>
+          <button class="tab-btn" data-tab="pengembalian">🔄 Pengembalian</button>
+          <button class="tab-btn" data-tab="log">🕒 Log Aktivitas</button>
+        </div>
 
     <!-- Tab Peminjaman -->
     <div id="tab-peminjaman" class="tab-content active card-table">
@@ -119,28 +156,6 @@
       </table>
     </div>
 
-    <!-- Tab User -->
-    <div id="tab-user" class="tab-content card-table">
-      <div class="card-header">
-        <h2>Kelola Data User & Pegawai</h2>
-        <div class="action-group" style="justify-content: flex-end;">
-          <button class="btn-act" id="btnExportCsv" style="background-color: var(--success);">📤 Ekspor CSV</button>
-          <button class="btn-act" id="btnImportCsv" style="background-color: var(--info);">📥 Impor CSV</button>
-          <button class="btn-act btn-add" id="btnOpenAddEmployee">+ Tambah Pegawai</button>
-        </div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>NIP</th><th>Nama Pegawai</th><th>Terdaftar Sejak</th><th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-user">
-          <tr><td colspan="5" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
     <!-- Tab Log Aktivitas -->
     <div id="tab-log" class="tab-content card-table">
       <div class="card-header"><h2>Riwayat Peminjaman (Log)</h2></div>
@@ -155,6 +170,50 @@
         </tbody>
       </table>
     </div>
+    
+    </div> <!-- End Modul Kendaraan -->
+
+    <!-- MODUL USER -->
+    <div id="module-user" class="module-section">
+      <div class="card-table">
+        <div class="card-header">
+          <h2>Kelola Data User & Pegawai</h2>
+          <div class="action-group" style="justify-content: flex-end;">
+            <button class="btn-act" id="btnExportCsv" style="background-color: var(--success);">📤 Ekspor CSV</button>
+            <button class="btn-act" id="btnImportCsv" style="background-color: var(--info);">📥 Impor CSV</button>
+            <button class="btn-act btn-add" id="btnOpenAddEmployee">+ Tambah Pegawai</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>NIP</th><th>Nama Pegawai</th><th>Terdaftar Sejak</th><th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-user">
+            <tr><td colspan="5" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODUL RUANG RAPAT -->
+    <div id="module-ruang" class="module-section">
+      <div class="card-table" style="text-align: center; padding: 5rem 2rem;">
+        <h2 style="color: var(--kemenkeu-main); font-size: 2rem; margin-bottom: 1rem;">🏢 Ruang Rapat / Aula</h2>
+        <p style="color: #64748B; font-size: 1.1rem;">Modul ini sedang dalam tahap pengembangan dan akan segera hadir.</p>
+      </div>
+    </div>
+
+    <!-- MODUL ATK -->
+    <div id="module-atk" class="module-section">
+      <div class="card-table" style="text-align: center; padding: 5rem 2rem;">
+        <h2 style="color: var(--kemenkeu-main); font-size: 2rem; margin-bottom: 1rem;">📎 Permintaan ATK</h2>
+        <p style="color: #64748B; font-size: 1.1rem;">Modul ini sedang dalam tahap pengembangan dan akan segera hadir.</p>
+      </div>
+    </div>
+
+    </main>
   </div>
 
   <!-- Modals -->

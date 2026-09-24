@@ -13,7 +13,30 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// 2. Logika Navigasi Tab
+// 2. Logika Navigasi Modul (Sidebar) & Tab
+function switchModule(moduleName) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.querySelectorAll('.module-section').forEach(m => m.classList.remove('active'));
+  
+  const targetLink = document.querySelector(`.sidebar-link[data-module="${moduleName}"]`);
+  if (targetLink) targetLink.classList.add('active');
+  
+  const targetModule = document.getElementById('module-' + moduleName);
+  if (targetModule) targetModule.classList.add('active');
+  
+  localStorage.setItem('activeAdminModule', moduleName);
+}
+
+document.querySelectorAll('.sidebar-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchModule(e.target.dataset.module || e.target.closest('a').dataset.module);
+  });
+});
+
+const savedModule = localStorage.getItem('activeAdminModule') || 'kendaraan';
+switchModule(savedModule);
+
 function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
