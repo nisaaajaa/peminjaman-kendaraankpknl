@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Peminjaman Kendaraan - KPKNL Metro</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body style="padding: 2rem 1rem;">
+
+  <div class="form-container">
+    <div class="form-header">
+      <h2>FORM PEMINJAMAN KENDARAAN</h2>
+      <p>KPKNL METRO - KEMENTERIAN KEUANGAN RI</p>
+    </div>
+
+    <!-- Menampilkan pesan jika tidak ada parameter ID -->
+    <div id="errorOverlay" style="display:none; padding:3rem; text-align:center; color: var(--danger);">
+      <h3>Akses Tidak Valid</h3>
+      <p>Silakan pilih kendaraan dari halaman Beranda.</p>
+      <a href="index.html" class="btn btn-primary" style="margin-top:1rem; width:auto; display:inline-block;">Ke Beranda</a>
+    </div>
+
+    <form id="loanForm" class="form-body">
+      <!-- Hidden Input for Vehicle ID -->
+      <input type="hidden" id="vehicle_id">
+
+      <div class="form-group">
+        <label>Kendaraan yang Dipinjam</label>
+        <input type="text" id="nama_kendaraan_display" class="form-control" value="Memuat data..." readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="nama_pegawai">Nama Lengkap Pegawai</label>
+        <select id="nama_pegawai" name="nama_pegawai" class="form-control" required disabled>
+          <option value="">-- Memuat Data Pegawai... --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nip">NIP Pegawai</label>
+        <input type="number" id="nip" name="nip" class="form-control" placeholder="Masukkan 18 digit NIP Anda" required>
+        <small style="color: #64748B;">NIP digunakan untuk validasi identitas.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="seksi">Seksi / Subbagian</label>
+        <input type="text" id="seksi" name="seksi" class="form-control" placeholder="Contoh: Seksi Hukum dan Informasi" required>
+      </div>
+
+      <div class="form-group">
+        <label for="keperluan">Keperluan / Perjalanan Dinas</label>
+        <textarea id="keperluan" name="keperluan" class="form-control" placeholder="Jelaskan tujuan dan keperluan dinas..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="tgl_pinjam">Tanggal Pinjam</label>
+        <input type="date" id="tgl_pinjam" name="tgl_pinjam" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="tgl_kembali">Tanggal Kembali</label>
+        <input type="date" id="tgl_kembali" name="tgl_kembali" class="form-control" required>
+      </div>
+
+      <!-- Cloudflare Turnstile (Visual Deterrent) -->
+      <div class="form-group" style="display: flex; justify-content: center; margin-top: 1rem;">
+        <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+      </div>
+
+      <div class="form-actions">
+        <a href="index.html" class="btn btn-cancel">Batal</a>
+        <button type="submit" id="btnSubmitForm" class="btn btn-submit">Kirim Permohonan</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="js/vehicle.js"></script>
+</body>
+</html>

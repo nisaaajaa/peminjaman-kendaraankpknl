@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - KPKNL Metro</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Admin Dashboard Specific Styles */
+    .container { width: 95%; max-width: 1800px; margin: 2rem auto; padding: 0 1.5rem; }
+    
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px solid #CBD5E1; }
+    .tab-btn { padding: 0.8rem 1.2rem; border: none; background: transparent; font-size: 0.95rem; font-weight: bold; color: var(--secondary); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    .tab-btn.active { color: var(--kemenkeu-main); border-bottom-color: var(--kemenkeu-gold); background: #E2E8F0; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .card-table { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 1.5rem; margin-bottom: 2rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid #E2E8F0; font-size: 0.88rem; }
+    th { background-color: #F1F5F9; color: var(--kemenkeu-main); font-weight: 700; }
+    
+    .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
+    .btn-act { padding: 0.35rem 0.65rem; border-radius: 4px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 0.78rem; text-decoration: none; }
+    .btn-add { background-color: var(--kemenkeu-main); padding: 0.5rem 1rem; }
+    .btn-approve { background-color: var(--success); }
+    .btn-reject { background-color: var(--danger); }
+    .btn-edit { background-color: var(--info); }
+    .btn-delete { background-color: var(--danger); }
+    .btn-act:hover { opacity: 0.85; }
+    
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+    .close:hover { color: black; }
+    .btn-logout { background-color: var(--danger); color: white; padding: 0.5rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; cursor: pointer; border: none; }
+    
+    @media (max-width: 768px) {
+      .container { width: 100%; padding: 0 1rem; margin: 1rem auto; }
+      header { padding: 1rem; flex-direction: column; gap: 1rem; text-align: center; }
+      .nav-tabs { overflow-x: auto; white-space: nowrap; padding-bottom: 0.5rem; }
+      .card-header { flex-direction: column; gap: 1rem; align-items: stretch; text-align: center; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { position: absolute; top: -9999px; left: -9999px; }
+      tr { margin-bottom: 1rem; border: 1px solid #E2E8F0; border-radius: 8px; padding: 0.5rem 1rem; background: #fff; }
+      td { border: none; border-bottom: 1px solid #F1F5F9; position: relative; padding: 0.8rem 0 0.8rem 45%; text-align: right; min-height: 2.5rem; }
+      td::before { content: attr(data-label); position: absolute; left: 0; width: 40%; white-space: nowrap; text-align: left; font-weight: bold; color: var(--kemenkeu-main); font-size: 0.85rem; top: 0.8rem; }
+    }
+  </style>
+</head>
+<body style="display: none;"> <!-- Disembunyikan awalnya untuk auth guard -->
+
+  <header>
+    <div class="brand-text">
+      <h2>PANEL ADMIN - SISTEM PEMINJAMAN KENDARAAN</h2>
+      <p>KPKNL METRO</p>
+    </div>
+    <button id="btnLogout" class="btn-logout">Logout</button>
+  </header>
+
+  <div class="container">
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="peminjaman">📋 Peminjaman</button>
+      <button class="tab-btn" data-tab="kendaraan">🚗 Kendaraan</button>
+      <button class="tab-btn" data-tab="pengembalian">🔄 Pengembalian</button>
+      <button class="tab-btn" data-tab="user">👤 User</button>
+      <button class="tab-btn" data-tab="log">🕒 Log Aktivitas</button>
+    </div>
+
+    <!-- Tab Peminjaman -->
+    <div id="tab-peminjaman" class="tab-content active card-table">
+      <div class="card-header"><h2>Daftar Pengajuan Peminjaman</h2></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu Input</th><th>NIP</th><th>Pegawai</th><th>Kendaraan</th><th>Masa Pinjam</th><th>Keperluan</th><th>Status</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-peminjaman">
+          <tr><td colspan="8" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab Kendaraan -->
+    <div id="tab-kendaraan" class="tab-content card-table">
+      <div class="card-header">
+        <h2>Kelola Data Kendaraan Dinas</h2>
+        <button class="btn-act btn-add" id="btnOpenAddVehicle">+ Tambah Kendaraan</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Nama & Plat Kendaraan</th><th>Status Kendaraan</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-kendaraan">
+          <tr><td colspan="4" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab Pengembalian -->
+    <div id="tab-pengembalian" class="tab-content card-table">
+      <div class="card-header"><h2>Monitoring Pengembalian Kendaraan</h2></div>
+      <table>
+        <thead>
+          <tr>
+            <th>NIP</th><th>Pegawai</th><th>Kendaraan</th><th>Masa Pinjam</th><th>Status</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-pengembalian">
+          <tr><td colspan="6" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab User -->
+    <div id="tab-user" class="tab-content card-table">
+      <div class="card-header">
+        <h2>Kelola Data User & Pegawai</h2>
+        <div class="action-group" style="justify-content: flex-end;">
+          <!-- <button class="btn-act" id="btnExportCsv" style="background-color: var(--success);">📤 Ekspor CSV</button> -->
+          <!-- <button class="btn-act" id="btnImportCsv" style="background-color: var(--info);">📥 Impor CSV</button> -->
+          <button class="btn-act btn-add" id="btnOpenAddEmployee">+ Tambah Pegawai</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>NIP</th><th>Nama Pegawai</th><th>Terdaftar Sejak</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-user">
+          <tr><td colspan="5" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab Log Aktivitas -->
+    <div id="tab-log" class="tab-content card-table">
+      <div class="card-header"><h2>Riwayat Peminjaman (Log)</h2></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu Selesai</th><th>Pegawai</th><th>Kendaraan</th><th>Keperluan</th><th>Status Akhir</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-log">
+          <tr><td colspan="5" style="text-align:center;"><span class="spinner" style="border-top-color:var(--kemenkeu-main);"></span> Memuat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="modalAddVehicle" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Tambah Kendaraan</h2><span class="close" data-dismiss="modalAddVehicle">&times;</span></div>
+      <form id="formAddVehicle">
+        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="add_v_nama" required></div>
+        <div class="form-group"><label>Plat Nomor</label><input type="text" id="add_v_plat" required></div>
+        <div class="form-group"><label>Foto Kendaraan</label><input type="file" id="add_v_foto" accept="image/*"></div>
+        <button type="submit" class="btn-submit" id="btnSubmitAddVehicle">Simpan Kendaraan</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalEditVehicle" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Edit Kendaraan</h2><span class="close" data-dismiss="modalEditVehicle">&times;</span></div>
+      <form id="formEditVehicle">
+        <input type="hidden" id="edit_v_id">
+        <div class="form-group"><label>Nama Kendaraan</label><input type="text" id="edit_v_nama" required></div>
+        <div class="form-group"><label>Plat Nomor</label><input type="text" id="edit_v_plat" required></div>
+        <div class="form-group"><label>Ubah Foto</label><input type="file" id="edit_v_foto" accept="image/*"></div>
+        <button type="submit" class="btn-submit" id="btnSubmitEditVehicle">Update Kendaraan</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalAddEmployee" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Tambah Pegawai</h2><span class="close" data-dismiss="modalAddEmployee">&times;</span></div>
+      <form id="formAddEmployee">
+        <div class="form-group"><label>NIP</label><input type="text" id="add_e_nip" required></div>
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="add_e_nama" required></div>
+        <button type="submit" class="btn-submit" id="btnSubmitAddEmployee">Simpan Data</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalEditEmployee" class="modal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Edit Pegawai</h2><span class="close" data-dismiss="modalEditEmployee">&times;</span></div>
+      <form id="formEditEmployee">
+        <input type="hidden" id="edit_e_id">
+        <div class="form-group"><label>NIP</label><input type="text" id="edit_e_nip" required></div>
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="edit_e_nama" required></div>
+        <button type="submit" class="btn-submit" id="btnSubmitEditEmployee">Update Data</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

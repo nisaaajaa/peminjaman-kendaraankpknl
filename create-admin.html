@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Akun Admin</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f6f9; }
+    .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+    button { background: #062145; color: white; border: none; padding: 10px 20px; font-size: 1rem; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+    button:hover { background: #03142C; }
+    #status { margin-top: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Registrasi Akun Admin Default</h2>
+    <p>Klik tombol di bawah untuk membuat akun otomatis di Firebase:</p>
+    <p><strong>Username:</strong> admin<br><strong>Password:</strong> kpknlmetro</p>
+    <button id="btnCreate">Buat Akun Sekarang</button>
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { auth } from './js/firebase-config.js';
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    document.getElementById('btnCreate').addEventListener('click', async () => {
+      const statusEl = document.getElementById('status');
+      statusEl.style.color = 'blue';
+      statusEl.innerText = 'Memproses...';
+      
+      try {
+        // Mendaftar menggunakan email samaran
+        const userCredential = await createUserWithEmailAndPassword(auth, "admin@kpknl.local", "kpknlmetro");
+        statusEl.style.color = 'green';
+        statusEl.innerText = '✅ BERHASIL! Akun admin berhasil dibuat di database Firebase Anda. Anda sudah bisa login menggunakan username "admin".';
+      } catch (error) {
+        statusEl.style.color = 'red';
+        if (error.code === 'auth/email-already-in-use') {
+          statusEl.innerText = '⚠️ Akun ini sudah pernah dibuat sebelumnya. Anda sudah bisa menggunakannya untuk login.';
+        } else {
+          statusEl.innerText = '❌ GAGAL: ' + error.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
