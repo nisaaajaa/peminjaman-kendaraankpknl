@@ -14,7 +14,10 @@ class Loan extends Model
         'nip',
         'nama_peminjam',
         'masa_pinjam',
+        'tgl_pinjam',
+        'tgl_kembali',
         'keperluan',
+        'seksi',
         'status',
     ];
 

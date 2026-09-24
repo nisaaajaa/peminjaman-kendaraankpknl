@@ -23,19 +23,9 @@ class VehicleController extends Controller
     // Menampilkan form peminjaman
     public function create($id)
     {
-        $vehicle = Vehicle::find($id);
+        $vehicle = Vehicle::findOrFail($id);
 
-        if (!$vehicle) {
-            $vehicle = (object)[
-                'id' => 1,
-                'nama_kendaraan' => 'Toyota Rush',
-                'plat_nomor' => 'BE 1007 FZ',
-                'foto' => 'toyotarush.jpg',
-                'status' => 'tersedia'
-            ];
-        }
-
-        if (isset($vehicle->status) && $vehicle->status === 'dipinjam') {
+        if ($vehicle->status === 'dipinjam') {
             return redirect('/')->with('error', 'Kendaraan sedang digunakan!');
         }
 
@@ -56,6 +46,12 @@ class VehicleController extends Controller
             'tgl_kembali'  => 'required|date|after_or_equal:tgl_pinjam',
             'cf-turnstile-response' => 'required',
         ]);
+
+        // Verifikasi bahwa kendaraan ada dan tersedia
+        $vehicle = Vehicle::where('id', $id)->where('status', 'tersedia')->first();
+        if (!$vehicle) {
+            return redirect('/')->with('error', 'Kendaraan tidak ditemukan atau tidak tersedia!');
+        }
 
         // 1. Verifikasi Cloudflare Turnstile
         $turnstileResponse = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
@@ -84,11 +80,14 @@ class VehicleController extends Controller
         $masaPinjam = $request->tgl_pinjam . ' s.d. ' . $request->tgl_kembali;
 
         Loan::create([
-            'vehicle_id'    => $id,
+            'vehicle_id'    => $vehicle->id,
             'nip'           => $request->nip,
             'nama_peminjam' => $request->nama_pegawai,
-            'masa_pinjam'   => $masaPinjam,
-            'keperluan'     => $request->keperluan . ' (Seksi: ' . $request->seksi . ')',
+            'masa_pinjam'   => $masaPinjam, // kept for backward compatibility
+            'tgl_pinjam'    => $request->tgl_pinjam,
+            'tgl_kembali'   => $request->tgl_kembali,
+            'keperluan'     => $request->keperluan,
+            'seksi'         => $request->seksi,
             'status'        => 'pending',
         ]);
 

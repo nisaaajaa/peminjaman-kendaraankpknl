@@ -6,6 +6,8 @@ use App\Models\Loan;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 
+use App\Models\Employee;
+
 class AdminController extends Controller
 {
     public function index()
@@ -15,7 +17,7 @@ class AdminController extends Controller
         $logLoans = Loan::with('vehicle')->whereIn('status', ['returned', 'rejected'])->orderBy('updated_at', 'desc')->get();
         
         $vehicles = Vehicle::all();
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::all();
 
         return view('admin.dashboard', compact('pendingLoans', 'approvedLoans', 'logLoans', 'vehicles', 'employees'));
     }
@@ -28,7 +30,7 @@ class AdminController extends Controller
             'nama_pegawai' => 'required|string|max:255',
         ]);
 
-        \App\Models\Employee::create([
+        Employee::create([
             'nip' => $request->nip,
             'nama_pegawai' => strtoupper($request->nama_pegawai),
         ]);
@@ -38,7 +40,7 @@ class AdminController extends Controller
 
     public function updateEmployee(Request $request, $id)
     {
-        $employee = \App\Models\Employee::findOrFail($id);
+        $employee = Employee::findOrFail($id);
 
         $request->validate([
             'nip' => 'required|numeric|unique:employees,nip,' . $employee->id,
@@ -55,7 +57,7 @@ class AdminController extends Controller
 
     public function deleteEmployee($id)
     {
-        $employee = \App\Models\Employee::findOrFail($id);
+        $employee = Employee::findOrFail($id);
         $employee->delete();
 
         return redirect()->back()->with('success', 'Pegawai berhasil dihapus.');
@@ -63,7 +65,7 @@ class AdminController extends Controller
 
     public function exportEmployeesCsv()
     {
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::all();
         $csvFileName = 'data_pegawai_' . date('Y-m-d') . '.csv';
         $headers = [
             "Content-type"        => "text/csv",
@@ -111,7 +113,7 @@ class AdminController extends Controller
                 $nama = trim($row[1]);
 
                 if (!empty($nip) && !empty($nama)) {
-                    \App\Models\Employee::updateOrCreate(
+                    Employee::updateOrCreate(
                         ['nip' => $nip],
                         ['nama_pegawai' => strtoupper($nama)]
                     );

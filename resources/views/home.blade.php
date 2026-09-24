@@ -202,9 +202,6 @@
     <p>&copy; 2026 KPKNL Metro - Direktorat Jenderal Kekayaan Negara | Kementerian Keuangan RI</p>
   </footer>
 
-  <script>
-    // Status is now managed entirely by the server. No local storage needed.
-  </script>
-
+  <!-- Scripts removed -->
 </body>
 </html>
