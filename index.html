@@ -66,7 +66,7 @@
 
   <header>
     <div class="brand-container">
-      <img src="images/kemenkeu.jpg" alt="Logo Kemenkeu RI" class="brand-logo-img">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/Logo_of_the_Ministry_of_Finance_of_the_Republic_of_Indonesia.svg" alt="Logo Kemenkeu RI" class="brand-logo-img">
       <div class="brand-text">
         <h2>KPKNL METRO</h2>
         <p>KEMENTERIAN KEUANGAN RI</p>
@@ -79,10 +79,10 @@
     <div class="hero-badge">Direktorat Jenderal Kekayaan Negara</div>
     <h1>KPKNL METRO</h1>
     <p>Kantor Pelayanan Kekayaan Negara dan Lelang (KPKNL) Metro merupakan unit vertikal di bawah naungan <strong>Direktorat Jenderal Kekayaan Negara (DJKN)</strong>.</p>
-    <a href="#peminjaman" class="hero-scroll-btn">Lihat Layanan Peminjaman Kendaraan ↓</a>
+    <a href="#peminjaman" class="hero-scroll-btn" id="btnRevealPeminjaman">Peminjaman Kendaraan</a>
   </section>
 
-  <div class="content-container" id="peminjaman">
+  <div class="content-container" id="peminjaman" style="display: none;">
     <div class="notice-card">
       <div style="font-size: 1.8rem;">ℹ️</div>
       <div>
@@ -109,5 +109,15 @@
   </footer>
 
   <script type="module" src="js/vehicle.js"></script>
+  <script>
+    document.getElementById('btnRevealPeminjaman').addEventListener('click', function(e) {
+      e.preventDefault();
+      const section = document.getElementById('peminjaman');
+      section.style.display = 'block';
+      setTimeout(() => {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    });
+  </script>
 </body>
 </html>
