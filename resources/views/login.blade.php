@@ -79,18 +79,28 @@
     </div>
 
     <div class="login-body">
-      <div class="form-group">
-        <label for="email">Email Admin</label>
-        <input type="email" class="form-control" value="admin.kpknlmetro@kemenkeu.go.id" readonly>
-      </div>
+      @if($errors->any())
+        <div style="background-color: #FEE2E2; color: #DC2626; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; font-size: 0.85rem; border: 1px solid #FCA5A5;">
+          @foreach($errors->all() as $error)
+            {{ $error }}<br>
+          @endforeach
+        </div>
+      @endif
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="text" class="form-control" value="KpknlMetro2026!" readonly>
-      </div>
+      <form action="/login" method="POST">
+        @csrf
+        <div class="form-group">
+          <label for="email">User / Email Admin</label>
+          <input type="text" name="email" id="email" class="form-control" placeholder="Masukkan user/email" required autofocus>
+        </div>
 
-      <!-- LINK LANGSUNG KE DASHBOARD -->
-      <a href="/admin/dashboard" class="btn-login">Masuk ke Dashboard</a>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" class="form-control" placeholder="Masukkan password" required>
+        </div>
+
+        <button type="submit" class="btn-login">Masuk ke Dashboard</button>
+      </form>
       
       <a href="/" class="btn-back">← Kembali ke Halaman Utama</a>
     </div>

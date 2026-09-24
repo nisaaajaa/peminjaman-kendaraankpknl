@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         Vehicle::create(['nama_kendaraan' => 'Toyota Hilux - B 9440 PSE', 'status' => 'tersedia']); // <-- Mobil ke-5
         
         $this->call([
+            UserSeeder::class,
             EmployeeSeeder::class,
         ]);
     }
